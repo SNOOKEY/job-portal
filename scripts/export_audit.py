@@ -42,8 +42,10 @@ def export_audit_sample(
         "apply_url",
         "llm_role",
         "llm_city",
+        "llm_experience",
         "role_correct",
         "city_correct",
+        "experience_correct",
         "notes",
     ]
 
@@ -59,9 +61,11 @@ def export_audit_sample(
                 "apply_url": j.get("apply_url", ""),
                 "llm_role": j.get("role", ""),
                 "llm_city": j.get("city", ""),
-                "role_correct": "",  # Blank for manual scoring (0 or 1)
-                "city_correct": "",  # Blank for manual scoring (0 or 1)
-                "notes": "",         # Blank for manual notes
+                "llm_experience": j.get("experience", "Fresher"),
+                "role_correct": "",        # Blank for manual scoring (0 or 1)
+                "city_correct": "",        # Blank for manual scoring (0 or 1)
+                "experience_correct": "",  # Blank for manual scoring (0 or 1)
+                "notes": "",               # Blank for manual notes
             })
 
     print(f"Exported {actual_sample_size} audit sample posts to {out_file.resolve()}")

@@ -55,6 +55,7 @@ def execute_pipeline() -> None:
     roles_counter = Counter(p.get("role", "Other") for p in tagged_posts)
     cities_counter = Counter(p.get("city", "Other") for p in tagged_posts)
     types_counter = Counter(p.get("job_type", "Other") for p in tagged_posts)
+    exp_counter = Counter(p.get("experience", "Fresher") for p in tagged_posts)
     sources_counter = Counter(p.get("source", "Unknown") for p in tagged_posts)
 
     end_time = datetime.datetime.now(datetime.timezone.utc)
@@ -73,6 +74,7 @@ def execute_pipeline() -> None:
         "distributions": {
             "by_role": dict(roles_counter.most_common()),
             "by_city": dict(cities_counter.most_common()),
+            "by_experience": dict(exp_counter.most_common()),
             "by_job_type": dict(types_counter.most_common()),
             "by_source": dict(sources_counter.most_common()),
         },

@@ -3,9 +3,9 @@
   "duration_seconds": 5.61,
   "pipeline_status": "success",
   "counts": {
-    "raw_fetched": 1618,
-    "duplicates_removed": 194,
-    "unique_active_jobs": 1424
+    "raw_fetched": 1927,
+    "duplicates_removed": 203,
+    "unique_active_jobs": 1724
   },
   "cost_and_tokens": {
     "tagging_mode": "gemini-2.5-flash (thinking budget: 0)",
@@ -29,37 +29,45 @@
   },
   "distributions": {
     "by_role": {
-      "Software Engineering": 583,
-      "AI / ML": 326,
-      "Other": 197,
-      "Data & Analytics": 160,
-      "Product": 51,
-      "Design": 42,
-      "Operations & HR": 21,
-      "Marketing & Growth": 14,
-      "Sales & BD": 13,
-      "DevOps / Cloud": 9,
-      "QA / Testing": 8
+      "Software Engineering": 637,
+      "Other": 369,
+      "AI / ML": 322,
+      "Data & Analytics": 196,
+      "Product": 80,
+      "Operations & HR": 42,
+      "Sales & BD": 32,
+      "Marketing & Growth": 24,
+      "Design": 10,
+      "DevOps / Cloud": 7,
+      "QA / Testing": 5
     },
     "by_city": {
-      "Remote (India)": 1372,
-      "Bengaluru": 20,
-      "Delhi NCR": 17,
-      "Mumbai": 6,
-      "Chennai": 5,
-      "Hyderabad": 2,
-      "Other": 1,
-      "Pune": 1
+      "Remote (India)": 1410,
+      "Bengaluru": 140,
+      "Delhi NCR": 103,
+      "Mumbai": 37,
+      "Pune": 8,
+      "Other": 8,
+      "Chennai": 7,
+      "Hyderabad": 6,
+      "Ahmedabad": 5
+    },
+    "by_experience": {
+      "Internship": 594,
+      "Fresher": 460,
+      "Mid-Level": 403,
+      "Senior": 267
     },
     "by_job_type": {
-      "Full-Time Fresher": 833,
-      "Internship": 591
+      "Full-Time": 670,
+      "Internship": 594,
+      "Full-Time Fresher": 460
     },
     "by_source": {
       "SimplifyJobs": 1381,
-      "Lever": 26,
-      "Ashby": 12,
-      "Greenhouse": 5
+      "Lever": 206,
+      "Ashby": 72,
+      "Greenhouse": 65
     }
   }
 }

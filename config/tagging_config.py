@@ -35,6 +35,14 @@ NORMALIZED_CITIES: List[str] = [
     "Other",
 ]
 
+# Experience Levels
+EXPERIENCE_LEVELS: List[str] = [
+    "Internship",
+    "Fresher",
+    "Mid-Level",
+    "Senior",
+]
+
 # Canonical city alias mapping table
 CITY_MAPPING_RULES: Dict[str, str] = {
     # Bengaluru
@@ -121,9 +129,16 @@ Given a job posting title, company name, raw location, and excerpt, classify:
    - "Remote (India)" (if remote or open anywhere across India)
    - "Other" (if an Indian city outside these major hubs)
 
-3. `job_type`:
-   - "Internship" (if intern, trainee, co-op, or temporary student program)
-   - "Full-Time Fresher" (if graduate engineer, entry level, junior, associate, 0-1 YoE, or entry full-time)
+3. `experience`: Exactly ONE from:
+   - "Internship" (if intern, trainee, co-op, or student role)
+   - "Fresher" (0–1 YoE, entry level, new graduate, junior, associate)
+   - "Mid-Level" (2–5 YoE, SDE II, intermediate, professional)
+   - "Senior" (5+ YoE, senior, lead, staff, principal, architect, manager, director)
 
-4. `confidence`: A float between 0.0 and 1.0 indicating classification confidence.
+4. `job_type`:
+   - "Internship" (if intern or student role)
+   - "Full-Time Fresher" (if entry full-time)
+   - "Full-Time" (if mid or senior)
+
+5. `confidence`: A float between 0.0 and 1.0 indicating classification confidence.
 """

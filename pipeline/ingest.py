@@ -89,21 +89,14 @@ INDIA_LOCATION_KEYWORDS = [
 ]
 
 
-def is_fresher_title(title: str) -> bool:
-    """Returns True if title contains fresher/intern keywords and no senior keywords."""
+def is_target_job(title: str) -> bool:
+    """Returns True for valid professional postings across all experience levels."""
+    if not title or len(title.strip()) < 3:
+        return False
     title_lower = title.lower()
-    
-    # Exclude senior roles
-    for neg in SENIOR_EXCLUSION_KEYWORDS:
-        if re.search(neg, title_lower):
-            return False
-            
-    # Include fresher roles
-    for pos in FRESHER_KEYWORDS:
-        if re.search(pos, title_lower):
-            return True
-            
-    return False
+    if any(k in title_lower for k in ["test job", "do not apply", "dummy posting", "sample role"]):
+        return False
+    return True
 
 
 def is_india_location(location_str: str) -> bool:
@@ -126,7 +119,7 @@ def fetch_greenhouse(company: str, token: str) -> List[Dict[str, Any]]:
                 loc_obj = rj.get("location")
                 loc = loc_obj.get("name", "").strip() if isinstance(loc_obj, dict) else str(loc_obj or "").strip()
                 
-                if is_fresher_title(title) and (is_india_location(loc) or "india" in title.lower()):
+                if is_target_job(title) and (is_india_location(loc) or "india" in title.lower()):
                     jobs.append({
                         "title": title,
                         "company": company,
@@ -157,7 +150,7 @@ def fetch_lever(company: str, site: str) -> List[Dict[str, Any]]:
                     all_locs = cats.get("allLocations", []) if isinstance(cats, dict) else []
                     full_loc = f"{loc} {' '.join(all_locs)}".strip()
                     
-                    if is_fresher_title(title) and (is_india_location(full_loc) or "india" in title.lower()):
+                    if is_target_job(title) and (is_india_location(full_loc) or "india" in title.lower()):
                         jobs.append({
                             "title": title,
                             "company": company,
@@ -188,7 +181,7 @@ def fetch_ashby(company: str, org: str) -> List[Dict[str, Any]]:
                 sec_strs = [s.get("location", str(s)) if isinstance(s, dict) else str(s) for s in sec_locs]
                 full_loc = f"{loc} {' '.join(sec_strs)}".strip()
                 
-                if is_fresher_title(title) and (is_india_location(full_loc) or "india" in title.lower()):
+                if is_target_job(title) and (is_india_location(full_loc) or "india" in title.lower()):
                     jobs.append({
                         "title": title,
                         "company": company,

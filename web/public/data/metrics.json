@@ -1,22 +1,22 @@
 {
-  "timestamp": "2026-11-19T17:57:50.396527+00:00",
-  "duration_seconds": 18.12,
+  "timestamp": "2026-11-19T18:24:50.939941+00:00",
+  "duration_seconds": 13.51,
   "pipeline_status": "success",
   "counts": {
-    "raw_fetched": 1618,
-    "duplicates_removed": 194,
-    "unique_active_jobs": 1424
+    "raw_fetched": 1927,
+    "duplicates_removed": 203,
+    "unique_active_jobs": 1724
   },
   "cost_and_tokens": {
     "tagging_mode": "deterministic_heuristic_fallback",
-    "total_posts_live": 1424,
-    "delta_cached_posts": 1398,
-    "newly_tagged_posts": 26,
-    "input_tokens": 3120,
-    "output_tokens": 780,
-    "total_tokens": 3900,
-    "run_cost_usd": 0.002886,
-    "run_cost_inr": 0.2496,
+    "total_posts_live": 1724,
+    "delta_cached_posts": 1424,
+    "newly_tagged_posts": 300,
+    "input_tokens": 36000,
+    "output_tokens": 9000,
+    "total_tokens": 45000,
+    "run_cost_usd": 0.0333,
+    "run_cost_inr": 2.8804,
     "projected_cost_per_1000_posts_usd": 0.111,
     "projected_cost_per_1000_posts_inr": 9.6,
     "pricing_reference": {
@@ -29,37 +29,45 @@
   },
   "distributions": {
     "by_role": {
-      "Software Engineering": 583,
-      "AI / ML": 326,
-      "Other": 197,
-      "Data & Analytics": 160,
-      "Product": 51,
-      "Design": 42,
-      "Operations & HR": 21,
-      "Marketing & Growth": 14,
-      "Sales & BD": 13,
-      "DevOps / Cloud": 9,
-      "QA / Testing": 8
+      "Software Engineering": 637,
+      "Other": 369,
+      "AI / ML": 322,
+      "Data & Analytics": 196,
+      "Product": 80,
+      "Operations & HR": 42,
+      "Sales & BD": 32,
+      "Marketing & Growth": 24,
+      "Design": 10,
+      "DevOps / Cloud": 7,
+      "QA / Testing": 5
     },
     "by_city": {
-      "Remote (India)": 1372,
-      "Bengaluru": 20,
-      "Delhi NCR": 17,
-      "Mumbai": 6,
-      "Chennai": 5,
-      "Hyderabad": 2,
-      "Other": 1,
-      "Pune": 1
+      "Remote (India)": 1410,
+      "Bengaluru": 140,
+      "Delhi NCR": 103,
+      "Mumbai": 37,
+      "Pune": 8,
+      "Other": 8,
+      "Chennai": 7,
+      "Hyderabad": 6,
+      "Ahmedabad": 5
+    },
+    "by_experience": {
+      "Internship": 594,
+      "Fresher": 460,
+      "Mid-Level": 403,
+      "Senior": 267
     },
     "by_job_type": {
-      "Full-Time Fresher": 833,
-      "Internship": 591
+      "Full-Time": 670,
+      "Internship": 594,
+      "Full-Time Fresher": 460
     },
     "by_source": {
       "SimplifyJobs": 1381,
-      "Lever": 26,
-      "Ashby": 12,
-      "Greenhouse": 5
+      "Lever": 206,
+      "Ashby": 72,
+      "Greenhouse": 65
     }
   }
 }

@@ -47,6 +47,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState('ALL');
   const [selectedCity, setSelectedCity] = useState('ALL');
+  const [selectedExperience, setSelectedExperience] = useState('ALL');
   const [selectedType, setSelectedType] = useState('ALL');
   const [selectedSource, setSelectedSource] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,6 +64,14 @@ export default function App() {
     return list.length ? list : ['Bengaluru', 'Delhi NCR', 'Mumbai', 'Hyderabad', 'Pune', 'Chennai', 'Remote (India)', 'Other'];
   }, []);
 
+  const experienceOptions = [
+    { key: 'ALL', label: 'All Experience' },
+    { key: 'Internship', label: 'Internship' },
+    { key: 'Fresher', label: 'Fresher (0-1 YoE)' },
+    { key: 'Mid-Level', label: 'Mid-Level (2-5 YoE)' },
+    { key: 'Senior', label: 'Senior (5+ YoE)' },
+  ];
+
   const sources = useMemo(() => {
     const list = Object.keys(metricsData.distributions?.by_source || {});
     return list.length ? list : ['Greenhouse', 'Lever', 'Ashby', 'SimplifyJobs'];
@@ -78,7 +87,8 @@ export default function App() {
         const matchesCompany = job.company?.toLowerCase().includes(query);
         const matchesRole = job.role?.toLowerCase().includes(query);
         const matchesCity = job.city?.toLowerCase().includes(query);
-        if (!matchesTitle && !matchesCompany && !matchesRole && !matchesCity) {
+        const matchesExp = job.experience?.toLowerCase().includes(query);
+        if (!matchesTitle && !matchesCompany && !matchesRole && !matchesCity && !matchesExp) {
           return false;
         }
       }
@@ -90,6 +100,11 @@ export default function App() {
 
       // City
       if (selectedCity !== 'ALL' && job.city !== selectedCity) {
+        return false;
+      }
+
+      // Experience Level (Internship, Fresher, Mid-Level, Senior)
+      if (selectedExperience !== 'ALL' && job.experience !== selectedExperience) {
         return false;
       }
 
@@ -105,12 +120,12 @@ export default function App() {
 
       return true;
     });
-  }, [searchTerm, selectedRole, selectedCity, selectedType, selectedSource]);
+  }, [searchTerm, selectedRole, selectedCity, selectedExperience, selectedType, selectedSource]);
 
   // Reset pagination on filter change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedRole, selectedCity, selectedType, selectedSource]);
+  }, [searchTerm, selectedRole, selectedCity, selectedExperience, selectedType, selectedSource]);
 
   // Paginated slice
   const totalPages = Math.ceil(filteredJobs.length / ITEMS_PER_PAGE) || 1;
@@ -123,6 +138,7 @@ export default function App() {
     setSearchTerm('');
     setSelectedRole('ALL');
     setSelectedCity('ALL');
+    setSelectedExperience('ALL');
     setSelectedType('ALL');
     setSelectedSource('ALL');
   };
@@ -131,6 +147,7 @@ export default function App() {
     searchTerm !== '' ||
     selectedRole !== 'ALL' ||
     selectedCity !== 'ALL' ||
+    selectedExperience !== 'ALL' ||
     selectedType !== 'ALL' ||
     selectedSource !== 'ALL';
 
@@ -255,6 +272,19 @@ export default function App() {
                   ))}
                 </select>
 
+                {/* Experience Level Filter (Internship, Fresher, Mid, Senior) */}
+                <select
+                  value={selectedExperience}
+                  onChange={(e) => setSelectedExperience(e.target.value)}
+                  className="text-xs font-semibold bg-indigo-50/70 border border-indigo-200 text-indigo-900 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer shadow-2xs"
+                >
+                  {experienceOptions.map((opt) => (
+                    <option key={opt.key} value={opt.key}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+
                 {/* Type Filter */}
                 <select
                   value={selectedType}
@@ -264,6 +294,7 @@ export default function App() {
                   <option value="ALL">All Job Types</option>
                   <option value="Internship">Internship</option>
                   <option value="Full-Time Fresher">Full-Time Fresher</option>
+                  <option value="Full-Time">Full-Time</option>
                 </select>
 
                 {/* Source Filter */}
@@ -356,15 +387,25 @@ export default function App() {
                         </div>
                       </div>
 
-                      <span
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border shrink-0 ${
-                          job.job_type === 'Internship'
-                            ? 'bg-purple-50 text-purple-700 border-purple-200'
-                            : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        }`}
-                      >
-                        {job.job_type}
-                      </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span
+                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-2xs ${
+                            (job.experience || job.job_type) === 'Internship'
+                              ? 'bg-purple-50 text-purple-700 border-purple-200'
+                              : (job.experience || job.job_type) === 'Fresher'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : (job.experience || job.job_type) === 'Mid-Level'
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}
+                        >
+                          {job.experience === 'Mid-Level'
+                            ? 'Mid (2-5 YoE)'
+                            : job.experience === 'Senior'
+                            ? 'Senior (5+ YoE)'
+                            : job.experience || job.job_type || 'Fresher'}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Job Title */}
@@ -545,6 +586,30 @@ export default function App() {
                       <strong className="text-gray-900 ml-2">{count}</strong>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Experience Breakdown */}
+              <div>
+                <h4 className="text-xs font-bold text-gray-900 mb-2 uppercase tracking-wider">
+                  Experience Levels
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {['Internship', 'Fresher', 'Mid-Level', 'Senior'].map((lvl) => {
+                    const count = metricsData.distributions?.by_experience?.[lvl] || 
+                      jobsData.filter(j => j.experience === lvl).length;
+                    return (
+                      <div
+                        key={lvl}
+                        className="flex items-center justify-between text-xs bg-gray-50 px-2.5 py-1.5 rounded-lg border border-gray-200"
+                      >
+                        <span className="truncate text-gray-600 font-medium">
+                          {lvl === 'Mid-Level' ? 'Mid (2-5 YoE)' : lvl === 'Senior' ? 'Senior (5+ YoE)' : lvl}
+                        </span>
+                        <strong className="text-gray-900 ml-2">{count}</strong>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 

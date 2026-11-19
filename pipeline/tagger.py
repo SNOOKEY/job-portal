@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 from config.tagging_config import (
     ROLE_TAXONOMY,
     NORMALIZED_CITIES,
+    EXPERIENCE_LEVELS,
     CITY_MAPPING_RULES,
     GEMINI_FLASH_INPUT_PRICE_PER_1M,
     GEMINI_FLASH_OUTPUT_PRICE_PER_1M,
@@ -27,7 +28,10 @@ from config.tagging_config import (
     SYSTEM_PROMPT,
 )
 
-load_dotenv()
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+dotenv_file = PROJECT_ROOT / ".env"
+if dotenv_file.is_file():
+    load_dotenv(dotenv_file)
 logger = logging.getLogger("tagger")
 
 
@@ -35,7 +39,8 @@ class JobClassification(BaseModel):
     id: str = Field(description="ID of the job posting")
     role: str = Field(description="Classified role from allowed ROLE_TAXONOMY")
     city: str = Field(description="Normalized Indian city or Remote")
-    job_type: str = Field(description="'Internship' or 'Full-Time Fresher'")
+    experience: str = Field(description="Allowed: 'Internship', 'Fresher', 'Mid-Level', 'Senior'")
+    job_type: str = Field(description="'Internship' or 'Full-Time Fresher' or 'Full-Time'")
     confidence: float = Field(description="Confidence between 0.0 and 1.0")
 
 
@@ -44,31 +49,34 @@ class BatchClassificationResponse(BaseModel):
 
 
 def heuristic_tag_job(job: Dict[str, Any]) -> Dict[str, Any]:
-    """Deterministic fallback taxonomy classifier."""
+    """Deterministic fallback taxonomy and experience classifier with word boundaries."""
+    import re
     title = job.get("title", "").lower()
     loc = job.get("raw_location", "").lower()
+    source = job.get("source", "").lower()
+    url = job.get("apply_url", "").lower()
 
-    # 1. Role determination
+    # 1. Role determination (order & regex word boundaries prevent accidental substring collisions)
     role = "Software Engineering"
-    if any(k in title for k in ["data analyst", "business analyst", "data engineer", "analytics", "bi developer", "sql"]):
+    if re.search(r"\b(data analyst|business analyst|data engineer|analytics|bi developer|\bsql\b|data science|tableau|power bi)\b", title):
         role = "Data & Analytics"
-    elif any(k in title for k in ["machine learning", "ml", "ai", "data scientist", "deep learning", "nlp", "computer vision", "llm"]):
+    elif re.search(r"\b(machine learning|\bml\b|\bai\b|artificial intelligence|data scientist|deep learning|nlp|computer vision|\bllm\b|genai)\b", title):
         role = "AI / ML"
-    elif any(k in title for k in ["product manager", "apm", "product analyst", "product management"]):
+    elif re.search(r"\b(product manager|\bapm\b|product analyst|product management|associate product manager)\b", title):
         role = "Product"
-    elif any(k in title for k in ["design", "ui", "ux", "graphic", "creative", "visual"]):
+    elif re.search(r"\b(product design|ui[/ ]?ux|\bui\b|\bux\b|graphic design|creative designer|visual design|designer)\b", title):
         role = "Design"
-    elif any(k in title for k in ["devops", "cloud", "sre", "infrastructure", "platform engineer", "kubernetes"]):
+    elif re.search(r"\b(devops|cloud engineer|\bsre\b|infrastructure|platform engineer|kubernetes|site reliability|aws|azure)\b", title):
         role = "DevOps / Cloud"
-    elif any(k in title for k in ["qa", "test", "sdet", "quality assurance", "automation tester"]):
+    elif re.search(r"\b(\bqa\b|\btest\b|\bsdet\b|quality assurance|automation tester|test engineer)\b", title):
         role = "QA / Testing"
-    elif any(k in title for k in ["marketing", "seo", "content", "growth", "social media", "copywriter"]):
+    elif re.search(r"\b(marketing|seo|content writer|growth manager|social media|copywriter|digital marketing)\b", title):
         role = "Marketing & Growth"
-    elif any(k in title for k in ["sales", "sdr", "bdr", "business development", "account executive", "client relations"]):
+    elif re.search(r"\b(sales|\bsdr\b|\bbdr\b|business development|account executive|client relations)\b", title):
         role = "Sales & BD"
-    elif any(k in title for k in ["hr", "human resources", "talent", "recruiter", "operations", "ops"]):
+    elif re.search(r"\b(\bhr\b|human resources|talent acquisition|recruiter|recruitment|people ops|\boperations\b|\bops\b)\b", title):
         role = "Operations & HR"
-    elif not any(k in title for k in ["software", "developer", "engineer", "frontend", "backend", "full stack", "web", "mobile", "ios", "android", "intern"]):
+    elif not re.search(r"\b(software|developer|engineer|frontend|backend|full[- ]?stack|web|mobile|ios|android|intern|internship|tech)\b", title):
         role = "Other"
 
     # 2. City normalization
@@ -81,12 +89,50 @@ def heuristic_tag_job(job: Dict[str, Any]) -> Dict[str, Any]:
         if loc and loc != "india":
             city = "Other"
 
-    # 3. Job type
-    job_type = "Internship" if any(k in title for k in ["intern", "trainee", "apprentice", "co-op"]) else "Full-Time Fresher"
+    # 3. Experience & Job Type classification
+    # Priority:
+    # 1. Internship: intern, trainee, co-op, apprentice
+    # 2. Senior (5+ YoE): senior, lead, staff, principal, architect, manager, director, 5-9 yrs, 5+ yrs
+    # 3. Mid-Level (2-5 YoE): 2-5 yrs, sde 2, level 2, intermediate, specialist, or professional engineer
+    # 4. Fresher (0-1 YoE): fresher, graduate, new grad, junior, associate, 0-1 yrs
+    if re.search(r"\b(intern|internship|apprentice|co[- ]?op)\b", title):
+        experience = "Internship"
+        job_type = "Internship"
+    elif (
+        re.search(r"\b(senior|sr\.?|lead|staff|principal|architect|director|vp|head\s+of|manager|chief)\b", title)
+        or re.search(r"\b([5-9]|1[0-9])\s*[-–to]\s*[0-9]+\s*(?:yrs|years|yoe)?\b", title)
+        or re.search(r"\b([5-9]|1[0-9])\s*(?:\+|plus)\s*(?:yrs|years|yoe)?\b", title)
+    ):
+        experience = "Senior"
+        job_type = "Full-Time"
+    elif (
+        re.search(r"\b(sde[- ]?2|sde[- ]?ii|engineer[- ]?2|engineer[- ]?ii|level[- ]?2|mid[- ]?level|intermediate|specialist)\b", title)
+        or re.search(r"\b([2-4])\s*[-–to]\s*([3-5])\s*(?:yrs|years|yoe)?\b", title)
+        or re.search(r"\b([2-4])\s*(?:\+|plus)\s*(?:yrs|years|yoe)?\b", title)
+    ):
+        experience = "Mid-Level"
+        job_type = "Full-Time"
+    elif re.search(r"\b(fresher|graduate|new grad|entry[- ]level|junior|associate|trainee|0[- ]?1|campus)\b", title):
+        experience = "Fresher"
+        job_type = "Full-Time Fresher"
+    elif "summer" in url or "intern" in url or "intern" in source:
+        experience = "Internship"
+        job_type = "Internship"
+    elif "new-grad" in url or "new grad" in source:
+        experience = "Fresher"
+        job_type = "Full-Time Fresher"
+    elif re.search(r"\b(software engineer|developer|engineer|analyst)\b", title):
+        # Default standard tech role is 2-5 YoE Mid-Level
+        experience = "Mid-Level"
+        job_type = "Full-Time"
+    else:
+        experience = "Fresher"
+        job_type = "Full-Time Fresher"
 
     return {
         "role": role if role in ROLE_TAXONOMY else "Other",
         "city": city if city in NORMALIZED_CITIES else "Other",
+        "experience": experience if experience in EXPERIENCE_LEVELS else "Fresher",
         "job_type": job_type,
         "confidence": 0.92,
     }
@@ -138,10 +184,14 @@ def call_gemini_batch(client, jobs_batch: List[Dict[str, Any]]) -> Tuple[List[Di
         jid = j.get("id")
         if jid in classified_dict:
             c = classified_dict[jid]
+            exp = c.get("experience")
+            if exp not in EXPERIENCE_LEVELS:
+                exp = heuristic_tag_job(j)["experience"]
             results.append({
                 "role": c.get("role", "Software Engineering"),
                 "city": c.get("city", "Bengaluru"),
-                "job_type": c.get("job_type", "Internship"),
+                "experience": exp,
+                "job_type": c.get("job_type", "Internship" if exp == "Internship" else "Full-Time"),
                 "confidence": float(c.get("confidence", 0.95)),
             })
         else:
@@ -161,10 +211,14 @@ def load_existing_cache(jobs_path: str = "data/jobs.json") -> Dict[str, Dict[str
                 for j in existing_jobs:
                     jid = j.get("id")
                     if jid and "role" in j and "city" in j:
+                        exp = j.get("experience")
+                        if not exp or exp not in EXPERIENCE_LEVELS:
+                            exp = heuristic_tag_job(j)["experience"]
                         cache[jid] = {
                             "role": j.get("role"),
                             "city": j.get("city"),
-                            "job_type": j.get("job_type"),
+                            "experience": exp,
+                            "job_type": j.get("job_type", "Internship" if exp == "Internship" else "Full-Time"),
                             "confidence": j.get("confidence", 0.95),
                         }
         except Exception as e:
