@@ -1,0 +1,93 @@
+name: Daily Beep Job Portal Refresh & Deploy
+
+on:
+  schedule:
+    # 06:00 IST daily = 00:30 UTC
+    - cron: '30 0 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions UI
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages and commit data
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  refresh-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Job Ingestion, Tagging & Metrics Pipeline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python pipeline/run_pipeline.py
+
+      - name: Export 50-Post Manual Audit Sample
+        run: |
+          python scripts/export_audit.py
+
+      - name: Commit and Push Updated Data Artifacts
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/jobs.json data/metrics.json audit/sample_50.csv
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(data): auto-refresh job listings and metrics [skip ci]" && git push)
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'web/package-lock.json'
+
+      - name: Install Frontend Dependencies
+        working-directory: web
+        run: |
+          npm ci || npm install
+
+      - name: Sync Data Files to Web Public Directory
+        run: |
+          mkdir -p web/public/data
+          cp -r data/* web/public/data/
+
+      - name: Build Weekday-Inspired Frontend Bundle
+        working-directory: web
+        run: |
+          npm run build
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

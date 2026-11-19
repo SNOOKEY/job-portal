@@ -1,0 +1,62 @@
+{
+  "timestamp": "2026-11-19T16:02:37.338081+00:00",
+  "duration_seconds": 117.66,
+  "pipeline_status": "success",
+  "counts": {
+    "raw_fetched": 1865,
+    "duplicates_removed": 249,
+    "unique_active_jobs": 1616
+  },
+  "cost_and_tokens": {
+    "tagging_mode": "deterministic_heuristic_fallback",
+    "total_posts_tagged": 1616,
+    "input_tokens": 226240,
+    "output_tokens": 56560,
+    "total_tokens": 282800,
+    "run_cost_usd": 0.209272,
+    "run_cost_inr": 18.102,
+    "projected_cost_per_1000_posts_usd": 0.1295,
+    "projected_cost_per_1000_posts_inr": 11.2,
+    "pricing_reference": {
+      "model": "gemini-2.5-flash",
+      "input_per_million_usd": 0.3,
+      "output_per_million_usd": 2.5,
+      "exchange_rate_usd_to_inr": 86.5
+    }
+  },
+  "distributions": {
+    "by_role": {
+      "Software Engineering": 592,
+      "AI / ML": 331,
+      "Other": 225,
+      "Data & Analytics": 165,
+      "Sales & BD": 149,
+      "Product": 54,
+      "Design": 37,
+      "Operations & HR": 28,
+      "Marketing & Growth": 16,
+      "DevOps / Cloud": 11,
+      "QA / Testing": 8
+    },
+    "by_city": {
+      "Remote (India)": 1539,
+      "Bengaluru": 48,
+      "Other": 10,
+      "Mumbai": 6,
+      "Chennai": 6,
+      "Delhi NCR": 4,
+      "Hyderabad": 2,
+      "Pune": 1
+    },
+    "by_job_type": {
+      "Full-Time Fresher": 1019,
+      "Internship": 597
+    },
+    "by_source": {
+      "SimplifyJobs": 1379,
+      "Greenhouse": 208,
+      "Ashby": 26,
+      "Lever": 3
+    }
+  }
+}
