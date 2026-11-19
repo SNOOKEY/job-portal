@@ -2,8 +2,8 @@
 
 > A live, self-updating, ToS-compliant job aggregator curating **1,600+ real fresher jobs and internships in India**, powered by **Google Gemini 2.5 Flash structured tagging** and presented in a sleek dashboard inspired by **Weekday AI**.
 
-[![Daily Pipeline & Pages Deploy](https://github.com/anazs/job-portal/actions/workflows/daily-refresh.yml/badge.svg)](https://github.com/anazs/job-portal/actions/workflows/daily-refresh.yml)
-[![Live Portal](https://img.shields.io/badge/Hosted%20On-GitHub%20Pages-blue?logo=github)](https://anazs.github.io/job-portal/)
+[![Daily Pipeline & Pages Deploy](https://github.com/SNOOKEY/job-portal/actions/workflows/daily-refresh.yml/badge.svg)](https://github.com/SNOOKEY/job-portal/actions/workflows/daily-refresh.yml)
+[![Live Portal](https://img.shields.io/badge/Hosted%20On-GitHub%20Pages-blue?logo=github)](https://snookey.github.io/job-portal/)
 [![Gemini 2.5 Flash](https://img.shields.io/badge/LLM-Gemini%202.5%20Flash-indigo?logo=google)](https://deepmind.google/technologies/gemini/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
@@ -116,7 +116,7 @@ The frontend in `web/` provides a modern SaaS job dashboard:
 
 ### Step 1: Clone & Install Python Dependencies
 ```bash
-git clone https://github.com/anazs/job-portal.git
+git clone https://github.com/SNOOKEY/job-portal.git
 cd job-portal
 
 # Using virtualenv
