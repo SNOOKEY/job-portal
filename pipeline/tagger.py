@@ -40,7 +40,7 @@ class JobClassification(BaseModel):
     role: str = Field(description="Classified role from allowed ROLE_TAXONOMY")
     city: str = Field(description="Normalized Indian city or Remote")
     experience: str = Field(description="Allowed: 'Internship', 'Fresher', 'Mid-Level', 'Senior'")
-    job_type: str = Field(description="'Internship' or 'Full-Time Fresher' or 'Full-Time'")
+    job_type: str = Field(description="'Internship' or 'Full-Time Fresher'")
     confidence: float = Field(description="Confidence between 0.0 and 1.0")
 
 
@@ -104,14 +104,14 @@ def heuristic_tag_job(job: Dict[str, Any]) -> Dict[str, Any]:
         or re.search(r"\b([5-9]|1[0-9])\s*(?:\+|plus)\s*(?:yrs|years|yoe)?\b", title)
     ):
         experience = "Senior"
-        job_type = "Full-Time"
+        job_type = "Full-Time Fresher"
     elif (
         re.search(r"\b(sde[- ]?2|sde[- ]?ii|engineer[- ]?2|engineer[- ]?ii|level[- ]?2|mid[- ]?level|intermediate|specialist)\b", title)
         or re.search(r"\b([2-4])\s*[-–to]\s*([3-5])\s*(?:yrs|years|yoe)?\b", title)
         or re.search(r"\b([2-4])\s*(?:\+|plus)\s*(?:yrs|years|yoe)?\b", title)
     ):
         experience = "Mid-Level"
-        job_type = "Full-Time"
+        job_type = "Full-Time Fresher"
     elif re.search(r"\b(fresher|graduate|new grad|entry[- ]level|junior|associate|trainee|0[- ]?1|campus)\b", title):
         experience = "Fresher"
         job_type = "Full-Time Fresher"
@@ -124,7 +124,7 @@ def heuristic_tag_job(job: Dict[str, Any]) -> Dict[str, Any]:
     elif re.search(r"\b(software engineer|developer|engineer|analyst)\b", title):
         # Default standard tech role is 2-5 YoE Mid-Level
         experience = "Mid-Level"
-        job_type = "Full-Time"
+        job_type = "Full-Time Fresher"
     else:
         experience = "Fresher"
         job_type = "Full-Time Fresher"
@@ -191,7 +191,7 @@ def call_gemini_batch(client, jobs_batch: List[Dict[str, Any]]) -> Tuple[List[Di
                 "role": c.get("role", "Software Engineering"),
                 "city": c.get("city", "Bengaluru"),
                 "experience": exp,
-                "job_type": c.get("job_type", "Internship" if exp == "Internship" else "Full-Time"),
+                "job_type": "Internship" if exp == "Internship" or c.get("job_type") == "Internship" else "Full-Time Fresher",
                 "confidence": float(c.get("confidence", 0.95)),
             })
         else:
@@ -218,7 +218,7 @@ def load_existing_cache(jobs_path: str = "data/jobs.json") -> Dict[str, Dict[str
                             "role": j.get("role"),
                             "city": j.get("city"),
                             "experience": exp,
-                            "job_type": j.get("job_type", "Internship" if exp == "Internship" else "Full-Time"),
+                            "job_type": "Internship" if exp == "Internship" or j.get("job_type") == "Internship" else "Full-Time Fresher",
                             "confidence": j.get("confidence", 0.95),
                         }
         except Exception as e:

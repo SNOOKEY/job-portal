@@ -59,9 +59,8 @@
       "Senior": 267
     },
     "by_job_type": {
-      "Full-Time": 670,
-      "Internship": 594,
-      "Full-Time Fresher": 460
+      "Full-Time Fresher": 1129,
+      "Internship": 595
     },
     "by_source": {
       "SimplifyJobs": 1381,

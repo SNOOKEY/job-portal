@@ -294,7 +294,6 @@ export default function App() {
                   <option value="ALL">All Job Types</option>
                   <option value="Internship">Internship</option>
                   <option value="Full-Time Fresher">Full-Time Fresher</option>
-                  <option value="Full-Time">Full-Time</option>
                 </select>
 
                 {/* Source Filter */}
@@ -387,25 +386,16 @@ export default function App() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1 shrink-0">
-                        <span
-                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-2xs ${
-                            (job.experience || job.job_type) === 'Internship'
-                              ? 'bg-purple-50 text-purple-700 border-purple-200'
-                              : (job.experience || job.job_type) === 'Fresher'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : (job.experience || job.job_type) === 'Mid-Level'
-                              ? 'bg-blue-50 text-blue-700 border-blue-200'
-                              : 'bg-amber-50 text-amber-700 border-amber-200'
-                          }`}
-                        >
-                          {job.experience === 'Mid-Level'
-                            ? 'Mid (2-5 YoE)'
-                            : job.experience === 'Senior'
-                            ? 'Senior (5+ YoE)'
-                            : job.experience || job.job_type || 'Fresher'}
-                        </span>
-                      </div>
+                      {/* Job Type Badge (Original: Internship vs Full-Time Fresher) */}
+                      <span
+                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border shrink-0 ${
+                          job.job_type === 'Internship'
+                            ? 'bg-purple-50 text-purple-700 border-purple-200'
+                            : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        }`}
+                      >
+                        {job.job_type || (job.experience === 'Internship' ? 'Internship' : 'Full-Time Fresher')}
+                      </span>
                     </div>
 
                     {/* Job Title */}
@@ -416,8 +406,27 @@ export default function App() {
                       {job.title}
                     </h3>
 
-                    {/* Pills: Role, City */}
+                    {/* Pills: Experience Level, Role, City */}
                     <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                      {/* Experience Level Pill */}
+                      <span
+                        className={`inline-flex items-center text-[11px] font-bold px-2 py-0.5 rounded-md border shadow-2xs ${
+                          job.experience === 'Internship'
+                            ? 'bg-purple-50 text-purple-700 border-purple-200'
+                            : job.experience === 'Fresher'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : job.experience === 'Mid-Level'
+                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}
+                      >
+                        {job.experience === 'Mid-Level'
+                          ? 'Mid (2-5 YoE)'
+                          : job.experience === 'Senior'
+                          ? 'Senior (5+ YoE)'
+                          : job.experience || 'Fresher'}
+                      </span>
+
                       {/* LLM Role Badge */}
                       <span className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100">
                         <Briefcase className="w-3 h-3 text-indigo-500" />

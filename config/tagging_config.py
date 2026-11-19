@@ -136,9 +136,8 @@ Given a job posting title, company name, raw location, and excerpt, classify:
    - "Senior" (5+ YoE, senior, lead, staff, principal, architect, manager, director)
 
 4. `job_type`:
-   - "Internship" (if intern or student role)
-   - "Full-Time Fresher" (if entry full-time)
-   - "Full-Time" (if mid or senior)
+   - "Internship" (if intern, trainee, co-op, or student role)
+   - "Full-Time Fresher" (for full-time positions)
 
 5. `confidence`: A float between 0.0 and 1.0 indicating classification confidence.
 """

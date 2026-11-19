@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-11-19T18:24:50.939941+00:00",
-  "duration_seconds": 13.51,
+  "timestamp": "2026-11-19T18:00:38.552885+00:00",
+  "duration_seconds": 5.61,
   "pipeline_status": "success",
   "counts": {
     "raw_fetched": 1927,
@@ -8,17 +8,17 @@
     "unique_active_jobs": 1724
   },
   "cost_and_tokens": {
-    "tagging_mode": "deterministic_heuristic_fallback",
-    "total_posts_live": 1724,
+    "tagging_mode": "gemini-2.5-flash (thinking budget: 0)",
+    "total_posts_live": 1424,
     "delta_cached_posts": 1424,
-    "newly_tagged_posts": 300,
-    "input_tokens": 36000,
-    "output_tokens": 9000,
-    "total_tokens": 45000,
-    "run_cost_usd": 0.0333,
-    "run_cost_inr": 2.8804,
-    "projected_cost_per_1000_posts_usd": 0.111,
-    "projected_cost_per_1000_posts_inr": 9.6,
+    "newly_tagged_posts": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "run_cost_usd": 0.0,
+    "run_cost_inr": 0.0,
+    "projected_cost_per_1000_posts_usd": 0.1295,
+    "projected_cost_per_1000_posts_inr": 11.2,
     "pricing_reference": {
       "model": "gemini-2.5-flash",
       "thinking_budget": 0,
@@ -59,9 +59,8 @@
       "Senior": 267
     },
     "by_job_type": {
-      "Full-Time": 670,
-      "Internship": 594,
-      "Full-Time Fresher": 460
+      "Full-Time Fresher": 1129,
+      "Internship": 595
     },
     "by_source": {
       "SimplifyJobs": 1381,
