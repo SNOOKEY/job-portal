@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-11-19T17:57:50.396527+00:00",
-  "duration_seconds": 18.12,
+  "timestamp": "2026-11-19T18:00:38.552885+00:00",
+  "duration_seconds": 5.61,
   "pipeline_status": "success",
   "counts": {
     "raw_fetched": 1618,
@@ -8,17 +8,17 @@
     "unique_active_jobs": 1424
   },
   "cost_and_tokens": {
-    "tagging_mode": "deterministic_heuristic_fallback",
+    "tagging_mode": "gemini-2.5-flash (thinking budget: 0)",
     "total_posts_live": 1424,
-    "delta_cached_posts": 1398,
-    "newly_tagged_posts": 26,
-    "input_tokens": 3120,
-    "output_tokens": 780,
-    "total_tokens": 3900,
-    "run_cost_usd": 0.002886,
-    "run_cost_inr": 0.2496,
-    "projected_cost_per_1000_posts_usd": 0.111,
-    "projected_cost_per_1000_posts_inr": 9.6,
+    "delta_cached_posts": 1424,
+    "newly_tagged_posts": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "total_tokens": 0,
+    "run_cost_usd": 0.0,
+    "run_cost_inr": 0.0,
+    "projected_cost_per_1000_posts_usd": 0.1295,
+    "projected_cost_per_1000_posts_inr": 11.2,
     "pricing_reference": {
       "model": "gemini-2.5-flash",
       "thinking_budget": 0,
