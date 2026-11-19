@@ -137,3 +137,22 @@ Execute in this exact order:
 3. Go to **Settings -> Pages** -> set Source to **GitHub Actions**.
 4. Trigger the workflow once manually via the **Actions** tab to verify the live URL works.
 5. Open `audit/sample_50.csv`, hand-check all 50 rows, compute your accuracy %, and copy the prompts + audit into your Google Sheet/Doc.
+
+---
+
+## 8. Lean MVP Execution Plan: 5–8 Core Sources & Delta Caching
+
+* **Bullet 1: Ingestion Consolidation (5–8 High-Yield Sources)**
+  Streamline `config/sources.json` and `pipeline/ingest.py` to 5–8 reliable, fast sources (SimplifyJobs India Internships, SimplifyJobs India New Grad, Greenhouse InMobi, Greenhouse Razorpay, Lever Paytm, Lever Meesho, Ashby Headout, Ashby Snowflake). Normalize all items into a single unified schema: `{title, company, raw_location, apply_url, posted_at, source}`.
+
+* **Bullet 2: Pre-LLM SHA-256 Deduplication**
+  Compute deterministic SHA-256 hashes (`normalized_company + normalized_title + normalized_location`) and deduplicate canonical apply URLs before calling the LLM, ensuring 200+ unique Indian fresher/internship posts remain live.
+
+* **Bullet 3: Free-Tier Gemini 2.5 Flash Tagging with Delta Caching**
+  Implement `pipeline/tagger.py` with `gemini-2.5-flash` using `google-genai` SDK with thinking disabled (`thinking_budget=0`). Batch in chunks of 25–30 posts with a polite 5-second delay between calls. Use delta caching against existing `data/jobs.json` so only newly seen jobs are sent to Gemini, saving free-tier quota and logging exact token metrics and projected PAYG cost per 1,000 posts.
+
+* **Bullet 4: 50-Post Quality Audit & Weekday AI Dashboard**
+  Sample 50 random tagged jobs into `audit/sample_50.csv` for 0/1 manual scoring. Ensure `web/` renders a fast, responsive Weekday AI-inspired dashboard reading static `data/jobs.json` and `data/metrics.json` with instant search, role/city/type filtering, and last-refreshed timestamps.
+
+* **Bullet 5: Daily CI/CD & GitHub Pages Deployment**
+  Maintain `.github/workflows/daily-refresh.yml` running daily at 06:00 IST via cron and manual dispatch, using secrets.GEMINI_API_KEY, committing data updates, and deploying static assets to GitHub Pages.

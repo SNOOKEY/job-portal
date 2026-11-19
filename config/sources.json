@@ -1,68 +1,24 @@
 {
   "greenhouse_boards": [
     {"company": "InMobi", "token": "inmobi"},
-    {"company": "Razorpay", "token": "razorpaysoftwareprivatelimited"},
-    {"company": "ClearTax", "token": "clear"},
-    {"company": "Groww", "token": "groww"},
-    {"company": "Slice", "token": "slice"},
-    {"company": "Glance", "token": "glance"},
-    {"company": "Elastic", "token": "elastic"},
-    {"company": "Rubrik", "token": "rubrik"},
-    {"company": "Stripe", "token": "stripe"},
-    {"company": "Cloudflare", "token": "cloudflare"},
-    {"company": "MongoDB", "token": "mongodb"},
-    {"company": "Pure Storage", "token": "purestorage"},
-    {"company": "Zscaler", "token": "zscaler"},
-    {"company": "Datadog", "token": "datadog"},
-    {"company": "Okta", "token": "okta"},
-    {"company": "Toast", "token": "toast"},
-    {"company": "Canonical", "token": "canonical"},
-    {"company": "Samsara", "token": "samsara"},
-    {"company": "Brex", "token": "brex"},
-    {"company": "Coinbase", "token": "coinbase"},
-    {"company": "Affirm", "token": "affirm"},
-    {"company": "Fivetran", "token": "fivetran"},
-    {"company": "Robinhood", "token": "robinhood"},
-    {"company": "Reddit", "token": "reddit"},
-    {"company": "Stage", "token": "stage"},
-    {"company": "Netskope", "token": "netskope"},
-    {"company": "Twilio", "token": "twilio"},
-    {"company": "Gusto", "token": "gusto"},
-    {"company": "Duolingo", "token": "duolingo"},
-    {"company": "PagerDuty", "token": "pagerduty"},
-    {"company": "Dropbox", "token": "dropbox"},
-    {"company": "New Relic", "token": "newrelic"},
-    {"company": "Coursera", "token": "coursera"},
-    {"company": "Sumo Logic", "token": "sumologic"},
-    {"company": "Truecaller", "token": "truecaller"},
-    {"company": "Flexport", "token": "flexport"},
-    {"company": "Instacart", "token": "instacart"}
+    {"company": "Razorpay", "token": "razorpaysoftwareprivatelimited"}
   ],
   "lever_boards": [
     {"company": "Paytm", "site": "paytm"},
-    {"company": "CRED", "site": "cred"},
-    {"company": "Meesho", "site": "meesho"},
-    {"company": "Porter", "site": "porter"},
-    {"company": "Palantir", "site": "palantir"}
+    {"company": "Meesho", "site": "meesho"}
   ],
   "ashby_boards": [
     {"company": "Headout", "org": "headout"},
-    {"company": "Snowflake", "org": "snowflake"},
-    {"company": "Ramp", "org": "ramp"},
-    {"company": "Perplexity", "org": "perplexity"},
-    {"company": "Cursor", "org": "cursor"},
-    {"company": "Bounce", "org": "bounce"},
-    {"company": "Snyk", "org": "snyk"},
-    {"company": "Linear", "org": "linear"}
+    {"company": "Snowflake", "org": "snowflake"}
   ],
   "public_feeds": [
     {
-      "name": "SimplifyJobs - Summer Internships (India)",
+      "name": "SimplifyJobs - Summer Internships (India & Remote)",
       "type": "simplify_json",
       "url": "https://raw.githubusercontent.com/SimplifyJobs/Summer2025-Internships/dev/.github/scripts/listings.json"
     },
     {
-      "name": "SimplifyJobs - New Grad Positions (India)",
+      "name": "SimplifyJobs - New Grad Positions (India & Remote)",
       "type": "simplify_json",
       "url": "https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json"
     }

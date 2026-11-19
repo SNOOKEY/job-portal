@@ -1,8 +1,8 @@
 """Ingestion Engine for Beep Fresher & Internship Job Portal.
 
-Pulls from ToS-compliant public ATS boards (Greenhouse, Lever, Ashby) and
-public feeds, adhering to polite crawling standards (User-Agent, rate limiting).
-Filters strictly for Indian roles and Fresher / Internship / Entry-Level criteria.
+Pulls from 5–8 high-yield public sources (Greenhouse, Lever, Ashby, and SimplifyJobs),
+normalizing all items into a single unified schema:
+{title, company, raw_location, apply_url, posted_at, source}
 """
 
 import json
@@ -38,7 +38,6 @@ FRESHER_KEYWORDS = [
     r"\bexecutive\b",
     r"\bassistant\b",
     r"\bapprentice\b",
-    r"\bco[- ]?op\b",
     r"\bcampus\b",
 ]
 
@@ -108,7 +107,7 @@ def is_fresher_title(title: str) -> bool:
 
 
 def is_india_location(location_str: str) -> bool:
-    """Returns True if the location is within India or Remote - India."""
+    """Returns True if the location is within India or Remote."""
     loc_lower = location_str.lower()
     return any(k in loc_lower for k in INDIA_LOCATION_KEYWORDS)
 
@@ -118,7 +117,7 @@ def fetch_greenhouse(company: str, token: str) -> List[Dict[str, Any]]:
     url = f"https://boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true"
     jobs = []
     try:
-        r = requests.get(url, headers=REQUEST_HEADERS, timeout=6)
+        r = requests.get(url, headers=REQUEST_HEADERS, timeout=8)
         if r.status_code == 200:
             data = r.json()
             raw_jobs = data.get("jobs", [])
@@ -129,17 +128,16 @@ def fetch_greenhouse(company: str, token: str) -> List[Dict[str, Any]]:
                 
                 if is_fresher_title(title) and (is_india_location(loc) or "india" in title.lower()):
                     jobs.append({
-                        "company": company,
                         "title": title,
+                        "company": company,
                         "raw_location": loc or "India (Flexible)",
                         "apply_url": rj.get("absolute_url", ""),
-                        "source": "Greenhouse",
                         "posted_at": rj.get("updated_at") or "",
-                        "excerpt": f"Fresher role at {company} in {loc}."
+                        "source": "Greenhouse",
                     })
     except Exception as e:
         logger.warning(f"Error fetching Greenhouse board {token} ({company}): {e}")
-    time.sleep(0.2)
+    time.sleep(0.3)
     return jobs
 
 
@@ -148,7 +146,7 @@ def fetch_lever(company: str, site: str) -> List[Dict[str, Any]]:
     url = f"https://api.lever.co/v0/postings/{site}?mode=json"
     jobs = []
     try:
-        r = requests.get(url, headers=REQUEST_HEADERS, timeout=6)
+        r = requests.get(url, headers=REQUEST_HEADERS, timeout=8)
         if r.status_code == 200:
             raw_jobs = r.json()
             if isinstance(raw_jobs, list):
@@ -161,17 +159,16 @@ def fetch_lever(company: str, site: str) -> List[Dict[str, Any]]:
                     
                     if is_fresher_title(title) and (is_india_location(full_loc) or "india" in title.lower()):
                         jobs.append({
-                            "company": company,
                             "title": title,
+                            "company": company,
                             "raw_location": loc or "India",
                             "apply_url": rj.get("hostedUrl", ""),
-                            "source": "Lever",
                             "posted_at": str(rj.get("createdAt", "")),
-                            "excerpt": f"Entry level opening at {company}."
+                            "source": "Lever",
                         })
     except Exception as e:
         logger.warning(f"Error fetching Lever board {site} ({company}): {e}")
-    time.sleep(0.2)
+    time.sleep(0.3)
     return jobs
 
 
@@ -180,7 +177,7 @@ def fetch_ashby(company: str, org: str) -> List[Dict[str, Any]]:
     url = f"https://api.ashbyhq.com/posting-api/job-board/{org}"
     jobs = []
     try:
-        r = requests.get(url, headers=REQUEST_HEADERS, timeout=6)
+        r = requests.get(url, headers=REQUEST_HEADERS, timeout=8)
         if r.status_code == 200:
             data = r.json()
             raw_jobs = data.get("jobs", [])
@@ -193,17 +190,16 @@ def fetch_ashby(company: str, org: str) -> List[Dict[str, Any]]:
                 
                 if is_fresher_title(title) and (is_india_location(full_loc) or "india" in title.lower()):
                     jobs.append({
-                        "company": company,
                         "title": title,
+                        "company": company,
                         "raw_location": loc or "India",
                         "apply_url": rj.get("jobUrl", ""),
-                        "source": "Ashby",
                         "posted_at": rj.get("publishedAt", ""),
-                        "excerpt": f"Fresher vacancy at {company}."
+                        "source": "Ashby",
                     })
     except Exception as e:
         logger.warning(f"Error fetching Ashby board {org} ({company}): {e}")
-    time.sleep(0.2)
+    time.sleep(0.3)
     return jobs
 
 
@@ -229,13 +225,12 @@ def fetch_simplify_jobs(feed_url: str) -> List[Dict[str, Any]]:
                     continue
 
                 jobs.append({
-                    "company": company,
                     "title": title,
+                    "company": company,
                     "raw_location": loc_str or "India",
                     "apply_url": apply_url,
-                    "source": "SimplifyJobs",
                     "posted_at": str(it.get("date_posted", "")),
-                    "excerpt": f"{title} opportunity at {company} in {loc_str}."
+                    "source": "SimplifyJobs",
                 })
     except Exception as e:
         logger.warning(f"Error fetching SimplifyJobs feed ({feed_url}): {e}")
@@ -243,7 +238,7 @@ def fetch_simplify_jobs(feed_url: str) -> List[Dict[str, Any]]:
 
 
 def run_ingestion(config_path: str = "config/sources.json") -> List[Dict[str, Any]]:
-    """Main ingestion coordinator: iterates through all sources and yields raw posts."""
+    """Main ingestion coordinator: iterates through the 5–8 sources and yields standardized posts."""
     cfg_file = Path(config_path)
     if not cfg_file.exists():
         raise FileNotFoundError(f"Source configuration file not found at {config_path}")
@@ -252,33 +247,25 @@ def run_ingestion(config_path: str = "config/sources.json") -> List[Dict[str, An
         config = json.load(f)
 
     all_raw_jobs: List[Dict[str, Any]] = []
-    logger.info("Starting polite multi-portal ingestion...")
+    logger.info("Starting streamlined ingestion from 5–8 core sources...")
 
     # 1. Greenhouse boards
-    gh_boards = config.get("greenhouse_boards", [])
-    logger.info(f"Ingesting {len(gh_boards)} Greenhouse boards...")
-    for b in gh_boards:
+    for b in config.get("greenhouse_boards", []):
         jobs = fetch_greenhouse(b["company"], b["token"])
         all_raw_jobs.extend(jobs)
 
     # 2. Lever boards
-    lever_boards = config.get("lever_boards", [])
-    logger.info(f"Ingesting {len(lever_boards)} Lever boards...")
-    for b in lever_boards:
+    for b in config.get("lever_boards", []):
         jobs = fetch_lever(b["company"], b["site"])
         all_raw_jobs.extend(jobs)
 
     # 3. Ashby boards
-    ashby_boards = config.get("ashby_boards", [])
-    logger.info(f"Ingesting {len(ashby_boards)} Ashby boards...")
-    for b in ashby_boards:
+    for b in config.get("ashby_boards", []):
         jobs = fetch_ashby(b["company"], b["org"])
         all_raw_jobs.extend(jobs)
 
-    # 4. Public feeds & datasets
-    public_feeds = config.get("public_feeds", [])
-    logger.info(f"Ingesting {len(public_feeds)} public feeds...")
-    for feed in public_feeds:
+    # 4. Public feeds
+    for feed in config.get("public_feeds", []):
         feed_url = feed.get("url")
         jobs = fetch_simplify_jobs(feed_url)
         all_raw_jobs.extend(jobs)
