@@ -198,6 +198,24 @@ def run_ingestion(config_path: str = "config/sources.json") -> List[Dict[str, An
         jobs = fetch_ashby(b["company"], b["org"])
         all_raw_jobs.extend(jobs)
 
+    # 4. Abstract Boolean Dork Query Engine (Dynamic ATS discovery & LLM-grounded search)
+    try:
+        from pipeline.boolean_search_fetcher import AbstractBooleanJobEngine
+        dork_engine = AbstractBooleanJobEngine()
+        dork_jobs = dork_engine.run_all_configured()
+        for dj in dork_jobs:
+            all_raw_jobs.append({
+                "title": dj.get("title", ""),
+                "company": dj.get("company", ""),
+                "raw_location": dj.get("location") or dj.get("raw_location", "Bengaluru, India"),
+                "apply_url": dj.get("apply_url", ""),
+                "posted_at": dj.get("date_posted") or datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "source": dj.get("source", "Boolean Dork Engine"),
+            })
+        logger.info(f"Ingested {len(dork_jobs)} additional posts via Abstract Boolean Dork Search.")
+    except Exception as e:
+        logger.warning(f"Boolean dork ingestion notice: {e}")
+
     logger.info(f"Total verified ATS raw jobs ingested: {len(all_raw_jobs)}")
     return all_raw_jobs
 

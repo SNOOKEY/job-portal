@@ -1011,7 +1011,11 @@ Best regards,
               <div className="text-xs text-gray-600 dark:text-slate-300 space-y-1.5 bg-gray-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-gray-200 dark:border-slate-800">
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-slate-400">Ingestion Architecture:</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">Greenhouse + Lever + Ashby</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">Direct ATS + Abstract Boolean Dorking</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 dark:text-slate-400">Dork Search Mode:</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">LLM Grounding & ATS Dork Evaluator</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-slate-400">Search Engine:</span>

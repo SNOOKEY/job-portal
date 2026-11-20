@@ -1,0 +1,41 @@
+{
+  "description": "Abstract Boolean search dork queries for LLM-powered dynamic job fetching without hardcoded APIs",
+  "enabled": true,
+  "queries": [
+    {
+      "id": "greenhouse-devops-remote",
+      "query": "\"devops\" \"remote\" site:boards.greenhouse.io",
+      "ats": "greenhouse",
+      "role_hint": "DevOps / Cloud",
+      "target_location": "Remote"
+    },
+    {
+      "id": "lever-intern-india",
+      "query": "\"intern\" \"india\" site:jobs.lever.co",
+      "ats": "lever",
+      "role_hint": "Software Engineering",
+      "target_location": "India"
+    },
+    {
+      "id": "greenhouse-sde-india",
+      "query": "\"software engineer\" \"india\" site:boards.greenhouse.io",
+      "ats": "greenhouse",
+      "role_hint": "Software Engineering",
+      "target_location": "India"
+    },
+    {
+      "id": "ashby-tech-remote-india",
+      "query": "(\"software\" OR \"developer\" OR \"devops\") (\"india\" OR \"remote\") site:jobs.ashbyhq.com",
+      "ats": "ashby",
+      "role_hint": "Software Engineering",
+      "target_location": "India / Remote"
+    },
+    {
+      "id": "lever-data-analyst-india",
+      "query": "(\"data analyst\" OR \"data engineer\") \"india\" site:jobs.lever.co",
+      "ats": "lever",
+      "role_hint": "Data & Analytics",
+      "target_location": "India"
+    }
+  ]
+}
