@@ -1,15 +1,35 @@
 {
   "greenhouse_boards": [
     {"company": "InMobi", "token": "inmobi"},
-    {"company": "Razorpay", "token": "razorpaysoftwareprivatelimited"}
+    {"company": "Razorpay", "token": "razorpaysoftwareprivatelimited"},
+    {"company": "BrowserStack", "token": "browserstack"},
+    {"company": "Postman", "token": "postman"},
+    {"company": "PhonePe", "token": "phonepe"},
+    {"company": "Chargebee", "token": "chargebee"},
+    {"company": "Groww", "token": "groww"},
+    {"company": "Urban Company", "token": "urbancompany"},
+    {"company": "Cars24", "token": "cars24"},
+    {"company": "Shiprocket", "token": "shiprocket"},
+    {"company": "Unacademy", "token": "unacademy"},
+    {"company": "Apna", "token": "apna"},
+    {"company": "Delhivery", "token": "delhivery"}
   ],
   "lever_boards": [
     {"company": "Paytm", "site": "paytm"},
-    {"company": "Meesho", "site": "meesho"}
+    {"company": "Meesho", "site": "meesho"},
+    {"company": "Zepto", "site": "zepto"},
+    {"company": "Cleartrip", "site": "cleartrip"},
+    {"company": "HackerRank", "site": "hackerrank"},
+    {"company": "Khatabook", "site": "khatabook"},
+    {"company": "Dunzo", "site": "dunzo"},
+    {"company": "Udaan", "site": "udaan"}
   ],
   "ashby_boards": [
     {"company": "Headout", "org": "headout"},
-    {"company": "Snowflake", "org": "snowflake"}
+    {"company": "Snowflake", "org": "snowflake"},
+    {"company": "Swiggy", "org": "swiggy"},
+    {"company": "Polygon", "org": "polygon"},
+    {"company": "Lenskart", "org": "lenskart"}
   ],
   "public_feeds": [
     {
@@ -21,6 +41,11 @@
       "name": "SimplifyJobs - New Grad Positions (India & Remote)",
       "type": "simplify_json",
       "url": "https://raw.githubusercontent.com/SimplifyJobs/New-Grad-Positions/dev/.github/scripts/listings.json"
+    },
+    {
+      "name": "Arbeitnow Public Job API",
+      "type": "arbeitnow_api",
+      "url": "https://www.arbeitnow.com/api/job-board-api"
     }
   ]
 }

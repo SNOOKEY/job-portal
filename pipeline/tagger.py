@@ -81,13 +81,19 @@ def heuristic_tag_job(job: Dict[str, Any]) -> Dict[str, Any]:
 
     # 2. City normalization
     city = "Remote (India)"
+    matched_city = False
     for alias, canonical in CITY_MAPPING_RULES.items():
         if alias in loc:
             city = canonical
+            matched_city = True
             break
-    if city == "Remote (India)" and not any(r in loc for r in ["remote", "work from home", "anywhere", "pan-india", "india"]):
-        if loc and loc != "india":
+    if not matched_city:
+        if any(r in loc for r in ["remote", "work from home", "anywhere", "pan-india"]):
+            city = "Remote (India)"
+        elif loc and loc != "india":
             city = "Other"
+        else:
+            city = "Remote (India)"
 
     # 3. Experience & Job Type classification
     # Priority:

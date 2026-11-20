@@ -88,11 +88,13 @@ CITY_MAPPING_RULES: Dict[str, str] = {
     "gandhinagar": "Ahmedabad",
 
     # Remote
-    "remote": "Remote (India)",
     "remote - india": "Remote (India)",
     "india remote": "Remote (India)",
-    "work from home": "Remote (India)",
-    "anywhere": "Remote (India)",
+    "remote, india": "Remote (India)",
+    "remote (india)": "Remote (India)",
+    "in, remote": "Remote (India)",
+    "india (flexible)": "Remote (India)",
+    "pan-india": "Remote (India)",
 }
 
 # API Pricing Reference (gemini-2.5-flash as per PRD)
