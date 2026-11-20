@@ -1,6 +1,6 @@
-# ⚡ Beep Fresher & Internship Job Portal (Gen AI MVP)
+# ⚡ Peeb — Fresher & Internship Discovery Engine (Gen AI MVP)
 
-> A live, self-updating, ToS-compliant job aggregator curating **1,600+ real fresher jobs and internships in India**, powered by **Google Gemini 2.5 Flash structured tagging** and presented in a sleek dashboard inspired by **Weekday AI**.
+> A live, self-updating, ToS-compliant job aggregator curating **verified fresher jobs and internships in India**, featuring **Boolean dork search**, **Weekday AI 1-click referrals**, and **direct ATS verification (Greenhouse, Lever, Ashby)**.
 
 [![Daily Pipeline & Pages Deploy](https://github.com/SNOOKEY/job-portal/actions/workflows/daily-refresh.yml/badge.svg)](https://github.com/SNOOKEY/job-portal/actions/workflows/daily-refresh.yml)
 [![Live Portal](https://img.shields.io/badge/Hosted%20On-GitHub%20Pages-blue?logo=github)](https://snookey.github.io/job-portal/)

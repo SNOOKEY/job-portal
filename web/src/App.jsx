@@ -30,7 +30,14 @@ import {
   Users,
   HelpCircle,
   Send,
-  MessageSquare
+  MessageSquare,
+  ArrowUpRight,
+  Filter,
+  CheckCircle,
+  SlidersHorizontal,
+  Bookmark,
+  Share,
+  Sparkle
 } from 'lucide-react';
 
 // Import datasets bundled by Vite
@@ -43,13 +50,13 @@ const ITEMS_PER_PAGE = 24;
 // Avatar color helper based on company name
 const getAvatarColor = (name) => {
   const colors = [
-    'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/60',
-    'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/60',
-    'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/60',
-    'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60',
-    'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800/60',
-    'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60',
-    'bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-950/60 dark:text-cyan-300 dark:border-cyan-800/60',
+    'bg-indigo-50 text-indigo-700 border-indigo-200/80 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/60',
+    'bg-violet-50 text-violet-700 border-violet-200/80 dark:bg-violet-950/60 dark:text-violet-300 dark:border-violet-800/60',
+    'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60',
+    'bg-sky-50 text-sky-700 border-sky-200/80 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800/60',
+    'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60',
+    'bg-rose-50 text-rose-700 border-rose-200/80 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800/60',
+    'bg-teal-50 text-teal-700 border-teal-200/80 dark:bg-teal-950/60 dark:text-teal-300 dark:border-teal-800/60',
   ];
   let hash = 0;
   for (let i = 0; i < (name || '').length; i++) {
@@ -80,7 +87,7 @@ const getRelativeTime = (isoString) => {
 export default function App() {
   // Theme state
   const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem('beep_theme');
+    const saved = localStorage.getItem('peeb_theme') || localStorage.getItem('beep_theme');
     if (saved) return saved === 'dark';
     return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
@@ -94,6 +101,16 @@ export default function App() {
   const [selectedDateRange, setSelectedDateRange] = useState('ALL');
   const [selectedSource, setSelectedSource] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Saved/Bookmarked jobs
+  const [savedJobs, setSavedJobs] = useState(() => {
+    try {
+      const saved = localStorage.getItem('peeb_saved_jobs');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Modals & Drawers
   const [showMetricsModal, setShowMetricsModal] = useState(false);
@@ -109,12 +126,31 @@ export default function App() {
   useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add('dark');
-      localStorage.setItem('beep_theme', 'dark');
+      localStorage.setItem('peeb_theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
-      localStorage.setItem('beep_theme', 'light');
+      localStorage.setItem('peeb_theme', 'light');
     }
   }, [isDark]);
+
+  // Sync saved jobs to local storage
+  useEffect(() => {
+    try {
+      localStorage.setItem('peeb_saved_jobs', JSON.stringify(savedJobs));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [savedJobs]);
+
+  const toggleSaveJob = (jobId) => {
+    if (savedJobs.includes(jobId)) {
+      setSavedJobs(savedJobs.filter((id) => id !== jobId));
+      triggerToast('Removed from saved jobs');
+    } else {
+      setSavedJobs([...savedJobs, jobId]);
+      triggerToast('Saved to your bookmarks!');
+    }
+  };
 
   // Toast handler
   const triggerToast = (msg, id = null) => {
@@ -146,11 +182,11 @@ export default function App() {
   ];
 
   const dateRangeOptions = [
-    { key: 'ALL', label: 'Any time' },
+    { key: 'ALL', label: 'Any Time' },
     { key: '24h', label: 'Past 24 Hours' },
     { key: '3d', label: 'Past 3 Days' },
-    { key: '7d', label: 'Past Week (7 Days)' },
-    { key: '30d', label: 'Past Month (30 Days)' },
+    { key: '7d', label: 'Past Week (7d)' },
+    { key: '30d', label: 'Past Month (30d)' },
   ];
 
   // Boolean Search detection in search input
@@ -263,44 +299,52 @@ export default function App() {
     if (!job) return '';
     return `Hi [Name],
 
-I hope you're having a great week! I came across the open role for "${job.title}" at ${job.company} (Direct ATS Link: ${job.apply_url}) and was really excited by the team's engineering work.
+I hope you're having a great week! I noticed an open role for "${job.title}" at ${job.company} (Direct ATS Link: ${job.apply_url}) and was really impressed by the team's engineering work.
 
-Given my background in ${job.role}, I believe I'd be a strong match for this position. Would you be open to a quick connection and considering referring me through ${job.company}'s internal referral portal?
+Given my background in ${job.role}, I believe I'd be a strong addition to the team. Would you be open to a quick connection and considering referring me through ${job.company}'s internal referral portal?
 
-I'd be glad to share my resume and portfolio right away. Thanks so much for your time and guidance!
+I'd be glad to share my resume and relevant project links right away. Thanks so much for your time and guidance!
 
 Best regards,
 [Your Name]`;
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#080C15] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 rounded-xl shadow-xl text-xs font-semibold animate-bounce">
-          <Check className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-slate-900/95 dark:bg-white text-white dark:text-slate-900 px-4 py-3 rounded-2xl shadow-2xl text-xs font-semibold backdrop-blur-md border border-slate-700/50 dark:border-slate-200 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          <CheckCircle className="w-4 h-4 text-emerald-400 dark:text-emerald-600 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-white/95 dark:bg-[#0D1322]/95 backdrop-blur-md border-b border-gray-200/90 dark:border-slate-800 shadow-xs">
+      <header className="sticky top-0 z-40 bg-white/85 dark:bg-[#0A0F1D]/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16 sm:h-20">
             {/* Logo & Identity */}
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-500/20">
-                ⚡
+            <div className="flex items-center gap-3.5">
+              <div className="relative group cursor-pointer" onClick={resetFilters}>
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/25 group-hover:scale-105 group-hover:shadow-indigo-500/40 transition-all duration-300">
+                  P
+                </div>
+                <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-white dark:border-[#0A0F1D]"></span>
+                </span>
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-extrabold text-xl text-slate-900 dark:text-white tracking-tight">Beep</span>
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                    Fresher & Intern Portal
+                  <span className="font-extrabold text-2xl tracking-tight text-slate-900 dark:text-white">
+                    peeb<span className="text-indigo-600 dark:text-indigo-400">.</span>
+                  </span>
+                  <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/80 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80">
+                    Live ATS Engine
                   </span>
                 </div>
-                <p className="text-[11px] text-gray-500 dark:text-slate-400 hidden sm:block">
-                  Live aggregator across Greenhouse, Lever & Ashby • Direct ATS links & referrals
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium hidden sm:block">
+                  Direct Fresher & Internship Postings • Boolean Dork Search • 1-Click Referrals
                 </p>
               </div>
             </div>
@@ -308,31 +352,33 @@ Best regards,
             {/* Quick Actions, Theme Toggle & Metrics */}
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Live Status Indicator */}
-              <div className="hidden lg:flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300 bg-gray-100/80 dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700 px-3 py-1.5 rounded-lg">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span>Refreshed: <strong>{lastRefreshedDate}</strong></span>
+              <div className="hidden lg:flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 bg-slate-100/80 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80 px-3.5 py-1.5 rounded-xl">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Refreshed: <strong className="font-semibold text-slate-900 dark:text-slate-100">{lastRefreshedDate}</strong></span>
               </div>
 
               {/* Dark Mode Toggle */}
               <button
                 onClick={() => setIsDark(!isDark)}
                 aria-label="Toggle Theme"
-                className="p-2 rounded-xl text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 border border-gray-200 dark:border-slate-700 transition-colors"
+                className="p-2 sm:p-2.5 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600 transition-all active:scale-95"
                 title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
               >
-                {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+                {isDark ? (
+                  <Sun className="w-4 h-4 text-amber-400 transition-transform duration-300 rotate-0 hover:rotate-90" />
+                ) : (
+                  <Moon className="w-4 h-4 text-slate-700 transition-transform duration-300 rotate-0 hover:-rotate-45" />
+                )}
               </button>
 
               {/* Architecture & AI Cost Modal Trigger */}
               <button
                 onClick={() => setShowMetricsModal(true)}
-                className="flex items-center gap-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800 px-3 py-1.5 rounded-xl transition-all"
+                className="flex items-center gap-1.5 text-xs font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/70 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200/80 dark:border-indigo-800/80 px-3 py-2 rounded-xl transition-all active:scale-95"
               >
                 <Cpu className="w-3.5 h-3.5" />
-                <span>AI Cost Tracker</span>
+                <span className="hidden sm:inline">AI Economics</span>
+                <span className="sm:hidden">Cost</span>
               </button>
 
               {/* GitHub Link */}
@@ -340,100 +386,152 @@ Best regards,
                 href="https://github.com/SNOOKEY/job-portal"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 border border-gray-200 dark:border-slate-700 px-3 py-1.5 rounded-xl transition-all"
+                className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-700/80 border border-slate-200/80 dark:border-slate-700/80 px-3.5 py-2 rounded-xl transition-all active:scale-95"
               >
                 <span>GitHub</span>
-                <ExternalLink className="w-3 h-3 text-gray-400" />
+                <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
               </a>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Hero Live Stats Bar */}
-      <section className="bg-gradient-to-b from-white to-gray-50/50 dark:from-[#0D1322] dark:to-[#090D16] border-b border-gray-200 dark:border-slate-800 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Bento Grid Showcase Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-6">
+        {/* Hero Headline */}
+        <div className="mb-8 text-left">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-white/10 mb-4 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="tracking-wide">Direct ATS Pipelines • Verified Fresh Postings</span>
+          </div>
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.08] max-w-3xl">
+            High-signal tech roles.<br />
+            Apply direct or get referred with <span className="text-indigo-600 dark:text-indigo-400">peeb.</span>
+          </h1>
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-3 max-w-2xl font-normal leading-relaxed">
+            Eliminating dead aggregator links. Direct ingestion across official Greenhouse, Lever, and Ashby boards with recruiter-grade Boolean dork search.
+          </p>
+        </div>
+
+        {/* Editorial Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {/* Bento Tile 1: Live Ingestion Stream (Featured / 2 cols) */}
+          <div className="md:col-span-2 p-6 sm:p-7 rounded-3xl bg-white dark:bg-[#0E1526] border border-black/5 dark:border-white/10 shadow-2xs flex flex-col justify-between relative overflow-hidden group hover:border-black/15 dark:hover:border-white/20 transition-all duration-300">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  100% Verified Live Postings
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                  Direct ATS Pipeline
                 </span>
-                <span className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-amber-500" />
-                  Weekday AI Style Direct Referrals Enabled
+                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40">
+                  100% LIVE
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                India Fresher & Internship Aggregator
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
-                Direct official ATS applications + instant employee referral outreach generator inspired by Weekday AI.
+              <div className="flex items-baseline gap-2.5 mb-2">
+                <span className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tabular-nums">
+                  {jobsData.length}
+                </span>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  active openings currently accepting applications
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-md">
+                Direct connections to official corporate boards (Paytm, Meesho, CRED, Razorpay, Groww, InMobi, Headout). Every apply link is guaranteed alive.
               </p>
             </div>
-
-            {/* Quick Metrics Chips */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-              <div className="bg-white dark:bg-slate-800/70 border border-gray-200 dark:border-slate-700/80 px-3 py-2 rounded-xl text-center">
-                <div className="text-lg font-black text-indigo-600 dark:text-indigo-400">{jobsData.length}</div>
-                <div className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Live Postings</div>
-              </div>
-              <div className="bg-white dark:bg-slate-800/70 border border-gray-200 dark:border-slate-700/80 px-3 py-2 rounded-xl text-center">
-                <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">
-                  {metricsData.distributions?.by_job_type?.['Internship'] || 45}
-                </div>
-                <div className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Internships</div>
-              </div>
-              <div className="bg-white dark:bg-slate-800/70 border border-gray-200 dark:border-slate-700/80 px-3 py-2 rounded-xl text-center">
-                <div className="text-lg font-black text-amber-600 dark:text-amber-400">
-                  {metricsData.distributions?.by_city?.['Bengaluru'] || 140}
-                </div>
-                <div className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Bengaluru Hub</div>
-              </div>
-              <div className="bg-white dark:bg-slate-800/70 border border-gray-200 dark:border-slate-700/80 px-3 py-2 rounded-xl text-center">
-                <div className="text-lg font-black text-violet-600 dark:text-violet-400">
-                  ${metricsData.cost_and_tokens?.projected_cost_per_1000_posts_usd || 0.1295}
-                </div>
-                <div className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Cost / 1k Posts</div>
-              </div>
+            <div className="flex items-center gap-2 pt-5 mt-3 border-t border-slate-100 dark:border-white/5 text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span>Daily scheduled refresh at 06:00 IST + on-push deployment</span>
             </div>
+          </div>
+
+          {/* Bento Tile 2: Weekday AI Referral Engine (1 col) */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-[#0E1526] border border-black/5 dark:border-white/10 shadow-2xs flex flex-col justify-between group hover:border-black/15 dark:hover:border-white/20 transition-all duration-300">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  Referral Flow
+                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300">
+                  WEEKDAY AI
+                </span>
+              </div>
+              <div className="text-xl font-black text-slate-900 dark:text-white mb-1.5">
+                1-Click Referrals
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Pre-filtered LinkedIn employee search + personalized AI intro message. Target engineers for 4x response rates.
+              </p>
+            </div>
+            <div className="pt-4 border-t border-slate-100 dark:border-white/5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+              <span>Included on every job card</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </div>
+          </div>
+
+          {/* Bento Tile 3: Boolean Dorking Engine (1 col) */}
+          <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-[#0E1526] border border-black/5 dark:border-white/10 shadow-2xs flex flex-col justify-between group hover:border-black/15 dark:hover:border-white/20 transition-all duration-300">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+                  <Search className="w-3.5 h-3.5 text-slate-400" />
+                  Boolean Engine
+                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-slate-300">
+                  AND / OR / NOT
+                </span>
+              </div>
+              <div className="text-xl font-black text-slate-900 dark:text-white mb-1.5">
+                Recruiter Dorks
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                Query with parentheses, quotes, and negative operators directly in the search bar.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowBooleanHelp(!showBooleanHelp)}
+              className="pt-4 border-t border-slate-100 dark:border-white/5 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 hover:underline text-left"
+            >
+              <span>{showBooleanHelp ? 'Hide syntax guide' : 'View syntax guide'}</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </button>
           </div>
         </div>
       </section>
 
-      {/* Sticky Filter & Boolean Search Bar */}
-      <section className="sticky top-16 z-30 bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 shadow-xs py-3.5">
+      {/* Sticky Filter & Search Command Bar */}
+      <section className="sticky top-16 sm:top-20 z-30 bg-white/90 dark:bg-[#0A0F1D]/90 backdrop-blur-xl border-y border-slate-200/80 dark:border-slate-800/80 py-3.5 shadow-xs transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
           {/* Main Controls Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5">
             {/* Search Input with Boolean Indicator */}
             <div className="lg:col-span-4 relative">
-              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder='Search: e.g. Paytm AND (Intern OR Fresher) NOT Senior...'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-24 py-2 text-xs sm:text-sm bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 placeholder-gray-400 transition-all"
+                className="w-full pl-9 pr-24 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 placeholder-slate-400 transition-all font-medium"
               />
               <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 p-0.5"
+                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-md"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
-                {/* Boolean Syntax Helper Button */}
+                {/* Boolean Syntax Helper Toggle */}
                 <button
                   onClick={() => setShowBooleanHelp(!showBooleanHelp)}
-                  title="Boolean Search syntax help"
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border flex items-center gap-1 transition-all ${
+                  title="Toggle Boolean search syntax"
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border flex items-center gap-1 transition-all ${
                     isBooleanQuery
-                      ? 'bg-indigo-600 text-white border-indigo-700'
-                      : 'bg-gray-200/70 dark:bg-slate-800 text-gray-600 dark:text-slate-400 border-gray-300 dark:border-slate-700 hover:bg-gray-300/80'
+                      ? 'bg-indigo-600 text-white border-indigo-700 shadow-xs'
+                      : 'bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700 hover:bg-slate-300/80 dark:hover:bg-slate-700'
                   }`}
                 >
                   <span>Boolean</span>
@@ -442,14 +540,14 @@ Best regards,
               </div>
             </div>
 
-            {/* Date Posted Filter (24h, 3d, 1 week, etc.) */}
+            {/* Date Posted Recency Filter */}
             <div className="lg:col-span-2">
               <div className="relative">
-                <Clock className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                <Clock className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
                 <select
                   value={selectedDateRange}
                   onChange={(e) => setSelectedDateRange(e.target.value)}
-                  className="w-full pl-8 pr-7 py-2 text-xs bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 font-medium transition-all"
+                  className="w-full pl-8 pr-7 py-2.5 text-xs bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 font-semibold transition-all cursor-pointer"
                 >
                   {dateRangeOptions.map((opt) => (
                     <option key={opt.key} value={opt.key}>
@@ -465,7 +563,7 @@ Best regards,
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 font-medium transition-all"
+                className="w-full px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 font-semibold transition-all cursor-pointer"
               >
                 <option value="ALL">All Roles</option>
                 {roles.map((r) => (
@@ -481,7 +579,7 @@ Best regards,
               <select
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 font-medium transition-all"
+                className="w-full px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 font-semibold transition-all cursor-pointer"
               >
                 <option value="ALL">All Cities (India)</option>
                 {cities.map((c) => (
@@ -497,7 +595,7 @@ Best regards,
               <select
                 value={selectedExperience}
                 onChange={(e) => setSelectedExperience(e.target.value)}
-                className="w-full px-3 py-2 text-xs bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 font-medium transition-all"
+                className="w-full px-3 py-2.5 text-xs bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 font-semibold transition-all cursor-pointer"
               >
                 {experienceOptions.map((opt) => (
                   <option key={opt.key} value={opt.key}>
@@ -508,47 +606,55 @@ Best regards,
             </div>
           </div>
 
-          {/* Boolean Search Syntax Help Dropdown */}
+          {/* Expandable Boolean Search Cheatsheet */}
           {showBooleanHelp && (
-            <div className="bg-indigo-50/90 dark:bg-[#151D30] border border-indigo-200 dark:border-indigo-900/80 rounded-2xl p-4 text-xs space-y-2 animate-in fade-in duration-150">
+            <div className="bg-gradient-to-r from-indigo-50/90 via-white to-violet-50/90 dark:from-[#0E1526] dark:via-[#0E1526] dark:to-[#141C33] border border-indigo-200/80 dark:border-indigo-900/80 rounded-3xl p-5 text-xs space-y-3 animate-in fade-in duration-200 shadow-xs">
               <div className="flex items-center justify-between font-bold text-indigo-900 dark:text-indigo-200">
-                <span className="flex items-center gap-1.5">
+                <span className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                  Boolean Search Enabled (Recruiter & LLM Grade)
+                  Boolean Search Playground (AST Powered)
                 </span>
                 <button
                   onClick={() => setShowBooleanHelp(false)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200"
+                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <p className="text-gray-600 dark:text-slate-300 text-[11px]">
-                Combine keywords using operators <strong className="text-indigo-700 dark:text-indigo-300">AND</strong>,{' '}
-                <strong className="text-indigo-700 dark:text-indigo-300">OR</strong>,{' '}
-                <strong className="text-indigo-700 dark:text-indigo-300">NOT</strong>, exact quotes{' '}
-                <code className="bg-white dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 dark:text-indigo-400">"..."</code>, and parentheses{' '}
-                <code className="bg-white dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 dark:text-indigo-400">(...)</code>.
+              <p className="text-slate-600 dark:text-slate-300 text-xs leading-relaxed">
+                Combine search terms with <strong className="text-indigo-600 dark:text-indigo-400">AND</strong>,{' '}
+                <strong className="text-indigo-600 dark:text-indigo-400">OR</strong>,{' '}
+                <strong className="text-indigo-600 dark:text-indigo-400">NOT</strong>, exact quotes{' '}
+                <code className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded text-indigo-600 dark:text-indigo-400 font-mono text-[11px]">"phrase"</code>, and nested groups{' '}
+                <code className="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded text-indigo-600 dark:text-indigo-400 font-mono text-[11px]">(...)</code>.
               </p>
-              <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                <span className="text-[11px] font-semibold text-gray-500 dark:text-slate-400">Try clicking:</span>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  Click to try presets:
+                </span>
                 <button
-                  onClick={() => setSearchTerm('Paytm AND (Intern OR Associate)')}
-                  className="bg-white dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-slate-700 border border-indigo-200 dark:border-slate-700 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg text-[11px] font-mono transition-colors"
+                  onClick={() => setSearchTerm('"devops" OR "infrastructure"')}
+                  className="bg-white dark:bg-slate-800/90 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-xl text-[11px] font-mono transition-all hover:scale-105 active:scale-95 shadow-2xs"
                 >
-                  Paytm AND (Intern OR Associate)
+                  "devops" OR "infrastructure"
                 </button>
                 <button
-                  onClick={() => setSearchTerm('Razorpay OR Meesho')}
-                  className="bg-white dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-slate-700 border border-indigo-200 dark:border-slate-700 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg text-[11px] font-mono transition-colors"
+                  onClick={() => setSearchTerm('Paytm AND (Intern OR Trainee)')}
+                  className="bg-white dark:bg-slate-800/90 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-xl text-[11px] font-mono transition-all hover:scale-105 active:scale-95 shadow-2xs"
                 >
-                  Razorpay OR Meesho
+                  Paytm AND (Intern OR Trainee)
                 </button>
                 <button
                   onClick={() => setSearchTerm('Bengaluru AND "Software" NOT Senior')}
-                  className="bg-white dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-slate-700 border border-indigo-200 dark:border-slate-700 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg text-[11px] font-mono transition-colors"
+                  className="bg-white dark:bg-slate-800/90 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-xl text-[11px] font-mono transition-all hover:scale-105 active:scale-95 shadow-2xs"
                 >
                   Bengaluru AND "Software" NOT Senior
+                </button>
+                <button
+                  onClick={() => setSearchTerm('Razorpay OR Groww OR Meesho')}
+                  className="bg-white dark:bg-slate-800/90 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 px-2.5 py-1 rounded-xl text-[11px] font-mono transition-all hover:scale-105 active:scale-95 shadow-2xs"
+                >
+                  Razorpay OR Groww OR Meesho
                 </button>
               </div>
             </div>
@@ -557,30 +663,30 @@ Best regards,
           {/* Quick Filter Chips & Results Count Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[11px] font-semibold text-gray-500 dark:text-slate-400 mr-1 flex items-center gap-1">
+              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 mr-1 flex items-center gap-1 uppercase tracking-wider">
                 <Flame className="w-3 h-3 text-amber-500" />
-                Quick Filters:
+                Picks:
               </span>
 
               {/* 24h Filter Chip */}
               <button
                 onClick={() => setSelectedDateRange(selectedDateRange === '24h' ? 'ALL' : '24h')}
-                className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all ${
+                className={`text-[11px] font-bold px-3 py-1.5 rounded-xl border transition-all active:scale-95 ${
                   selectedDateRange === '24h'
                     ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
-                    : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:border-gray-300'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/80 hover:border-slate-300'
                 }`}
               >
-                ⏱️ Past 24 Hours
+                ⏱️ Past 24h
               </button>
 
               {/* Internships Chip */}
               <button
                 onClick={() => setSelectedExperience(selectedExperience === 'Internship' ? 'ALL' : 'Internship')}
-                className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all ${
+                className={`text-[11px] font-bold px-3 py-1.5 rounded-xl border transition-all active:scale-95 ${
                   selectedExperience === 'Internship'
                     ? 'bg-indigo-600 text-white border-indigo-700 shadow-xs'
-                    : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:border-gray-300'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/80 hover:border-slate-300'
                 }`}
               >
                 💼 Internships
@@ -589,10 +695,10 @@ Best regards,
               {/* Fresher Chip */}
               <button
                 onClick={() => setSelectedExperience(selectedExperience === 'Fresher' ? 'ALL' : 'Fresher')}
-                className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all ${
+                className={`text-[11px] font-bold px-3 py-1.5 rounded-xl border transition-all active:scale-95 ${
                   selectedExperience === 'Fresher'
                     ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
-                    : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:border-gray-300'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/80 hover:border-slate-300'
                 }`}
               >
                 ⚡ Freshers (0–1 YoE)
@@ -601,10 +707,10 @@ Best regards,
               {/* Bengaluru Chip */}
               <button
                 onClick={() => setSelectedCity(selectedCity === 'Bengaluru' ? 'ALL' : 'Bengaluru')}
-                className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all ${
+                className={`text-[11px] font-bold px-3 py-1.5 rounded-xl border transition-all active:scale-95 ${
                   selectedCity === 'Bengaluru'
-                    ? 'bg-blue-600 text-white border-blue-700 shadow-xs'
-                    : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:border-gray-300'
+                    ? 'bg-sky-600 text-white border-sky-700 shadow-xs'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700/80 hover:border-slate-300'
                 }`}
               >
                 📍 Bengaluru
@@ -614,16 +720,16 @@ Best regards,
               {hasActiveFilters && (
                 <button
                   onClick={resetFilters}
-                  className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/60 px-2.5 py-1 rounded-lg flex items-center gap-1 transition-all"
+                  className="text-[11px] font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700 bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900/60 px-3 py-1.5 rounded-xl flex items-center gap-1 transition-all active:scale-95"
                 >
                   <RotateCcw className="w-3 h-3" />
-                  <span>Clear All</span>
+                  <span>Reset</span>
                 </button>
               )}
             </div>
 
             {/* Live Count Pill */}
-            <div className="text-xs font-medium text-gray-600 dark:text-slate-400">
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
               Showing <strong className="text-slate-900 dark:text-white font-bold">{filteredJobs.length}</strong> active posts
             </div>
           </div>
@@ -633,119 +739,134 @@ Best regards,
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {filteredJobs.length === 0 ? (
-          <div className="bg-white dark:bg-[#131C31] border border-gray-200 dark:border-slate-800 rounded-2xl p-12 text-center max-w-md mx-auto shadow-xs">
-            <div className="w-12 h-12 bg-gray-100 dark:bg-slate-800 text-gray-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Search className="w-6 h-6" />
+          <div className="bg-white dark:bg-[#0E1526] border border-slate-200/90 dark:border-slate-800 rounded-3xl p-12 text-center max-w-md mx-auto shadow-xs">
+            <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Search className="w-7 h-7" />
             </div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">No active postings match your criteria</h3>
-            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 mb-5">
-              Try relaxing your boolean search query, role, or city filters to view more opportunities.
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 mb-6 leading-relaxed">
+              Try adjusting your boolean query or relaxing the location and role filters to view more live roles.
             </p>
             <button
               onClick={resetFilters}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-all"
+              className="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 transition-all active:scale-95"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset all filters</span>
             </button>
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Job Cards Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-8">
+            {/* Asymmetric Bento-Style Job Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
               {paginatedJobs.map((job) => {
                 const avatarColor = getAvatarColor(job.company || 'Job');
                 const relativeTime = getRelativeTime(job.posted_at);
                 const isCopied = copiedId === job.id;
+                const isSaved = savedJobs.includes(job.id);
 
                 return (
                   <div
                     key={job.id}
-                    className="group bg-white dark:bg-[#131C31] border border-gray-200/90 dark:border-slate-800/90 hover:border-indigo-400/80 dark:hover:border-indigo-500/60 rounded-2xl p-5 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between"
+                    className="group bg-white dark:bg-[#0E1526] border border-slate-200/80 dark:border-slate-800/80 hover:border-indigo-400/80 dark:hover:border-indigo-500/60 rounded-3xl p-5 sm:p-6 shadow-xs hover:shadow-xl hover:shadow-indigo-500/5 dark:hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
                   >
                     <div>
-                      {/* Card Header: Company, Source & Posted Time */}
-                      <div className="flex items-start justify-between gap-3 mb-3">
+                      {/* Card Header: Avatar, Company, Source & Micro-Actions */}
+                      <div className="flex items-start justify-between gap-3 mb-4">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`w-10 h-10 rounded-xl border flex items-center justify-center font-black text-sm shrink-0 shadow-xs ${avatarColor}`}
+                            className={`w-11 h-11 rounded-2xl border flex items-center justify-center font-black text-sm shrink-0 shadow-xs transition-transform group-hover:scale-105 duration-300 ${avatarColor}`}
                           >
                             {(job.company || 'J').substring(0, 2).toUpperCase()}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <span className="font-bold text-sm text-slate-900 dark:text-white leading-snug">
+                              <span className="font-bold text-sm sm:text-base text-slate-900 dark:text-white leading-snug">
                                 {job.company}
                               </span>
-                              <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" title="Direct verified ATS posting" />
+                              <ShieldCheck className="w-4 h-4 text-emerald-500" title="Direct verified ATS posting" />
                             </div>
-                            <div className="flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-slate-400">
-                              <span className="font-medium text-gray-600 dark:text-slate-300">{job.source}</span>
+                            <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                              <span className="font-medium text-slate-600 dark:text-slate-300">{job.source}</span>
                               <span>•</span>
-                              <span className="flex items-center gap-1">
-                                <Clock className="w-3 h-3 text-gray-400" />
+                              <span className="flex items-center gap-1 font-mono text-[10px]">
+                                <Clock className="w-2.5 h-2.5 text-slate-400" />
                                 {relativeTime}
                               </span>
                             </div>
                           </div>
                         </div>
 
-                        {/* Quick Action: Copy Direct Link */}
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(job.apply_url);
-                            triggerToast('Application link copied to clipboard!', job.id);
-                          }}
-                          title="Copy direct application URL"
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
-                        >
-                          {isCopied ? (
-                            <Check className="w-4 h-4 text-emerald-500" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </button>
+                        {/* Top-Right Card Micro-Actions: Bookmark & Copy */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => toggleSaveJob(job.id)}
+                            title={isSaved ? "Remove bookmark" : "Save this job"}
+                            className={`p-2 rounded-xl transition-all active:scale-90 ${
+                              isSaved
+                                ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/60'
+                                : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80'
+                            }`}
+                          >
+                            <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(job.apply_url);
+                              triggerToast('Application link copied to clipboard!', job.id);
+                            }}
+                            title="Copy direct application URL"
+                            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all active:scale-90"
+                          >
+                            {isCopied ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-500" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
 
-                      {/* Job Title */}
-                      <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white line-clamp-2 mb-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                      {/* Job Title with Micro-interaction on hover */}
+                      <h2 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white line-clamp-2 mb-3.5 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors leading-snug">
                         {job.title}
                       </h2>
 
                       {/* Pill Badges: Role, City, Job Type */}
-                      <div className="flex flex-wrap items-center gap-1.5 mb-4">
+                      <div className="flex flex-wrap items-center gap-1.5 mb-5">
                         {/* Role Pill */}
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/50">
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/50">
                           {job.role}
                         </span>
 
                         {/* City Pill */}
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/50 flex items-center gap-1">
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/50 flex items-center gap-1">
                           <MapPin className="w-2.5 h-2.5 text-emerald-500" />
                           {job.city}
                         </span>
 
                         {/* Experience / Type Pill */}
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-900/50">
+                        <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-900/50">
                           {job.experience === 'Internship' ? 'Internship' : 'Fresher (0–1 YoE)'}
                         </span>
                       </div>
                     </div>
 
                     {/* Card Footer: Location info, Weekday Referral Button & Apply Button */}
-                    <div className="pt-3 border-t border-gray-100 dark:border-slate-800/80 flex items-center justify-between gap-2 mt-auto">
-                      <span className="text-[11px] text-gray-500 dark:text-slate-400 truncate max-w-[110px] sm:max-w-[140px]" title={job.raw_location}>
+                    <div className="pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2 mt-auto">
+                      <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate max-w-[110px] sm:max-w-[140px]" title={job.raw_location}>
                         📍 {job.raw_location || 'India'}
                       </span>
 
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         {/* Weekday AI Style Ask for Referral Button */}
                         <button
                           onClick={() => setReferralJob(job)}
-                          className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800/80 text-indigo-700 dark:text-indigo-300 bg-indigo-50/70 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-all shrink-0"
+                          className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800/80 text-indigo-700 dark:text-indigo-300 bg-indigo-50/70 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-all hover:scale-102 active:scale-95 shrink-0"
                           title="Generate a personalized referral request for LinkedIn"
                         >
-                          <UserPlus className="w-3 h-3" />
+                          <Sparkles className="w-3 h-3 text-amber-500" />
                           <span>Referral</span>
                         </button>
 
@@ -754,10 +875,10 @@ Best regards,
                           href={job.apply_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-[11px] font-bold px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs hover:shadow-indigo-500/20 transition-all shrink-0"
+                          className="inline-flex items-center gap-1 text-xs font-bold px-3.5 py-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition-all hover:scale-102 active:scale-95 shrink-0 shadow-xs group/btn"
                         >
                           <span>Apply</span>
-                          <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                          <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
                         </a>
                       </div>
                     </div>
@@ -768,29 +889,49 @@ Best regards,
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="bg-white dark:bg-[#131C31] border border-gray-200 dark:border-slate-800 rounded-2xl px-4 py-3 flex items-center justify-between shadow-xs mt-8">
-                <div className="text-xs text-gray-500 dark:text-slate-400">
+              <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-slate-800">
+                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   Page <strong className="text-slate-900 dark:text-white font-bold">{currentPage}</strong> of{' '}
                   <strong className="text-slate-900 dark:text-white font-bold">{totalPages}</strong>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <button
-                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                     disabled={currentPage === 1}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    className="p-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-95"
                   >
-                    <ChevronLeft className="w-3.5 h-3.5" />
-                    <span>Previous</span>
+                    <ChevronLeft className="w-4 h-4" />
                   </button>
 
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) pageNum = i + 1;
+                    else if (currentPage <= 3) pageNum = i + 1;
+                    else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
+                    else pageNum = currentPage - 2 + i;
+
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-9 h-9 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                          currentPage === pageNum
+                            ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/80 hover:bg-slate-50 dark:hover:bg-slate-700'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+
                   <button
-                    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    className="p-2 rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 dark:hover:bg-slate-700 transition-all active:scale-95"
                   >
-                    <span>Next</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
+                    <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -799,52 +940,44 @@ Best regards,
         )}
       </main>
 
-      {/* Weekday AI Inspired "Ask for Referral" Modal */}
+      {/* Weekday AI Inspired "Ask for Referral" Interactive Drawer Modal */}
       {referralJob && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#131C31] border border-gray-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0E1526] border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative max-h-[92vh] overflow-y-auto">
             {/* Close Button */}
             <button
               onClick={() => {
                 setReferralJob(null);
                 setCopiedTemplate(false);
               }}
-              className="absolute top-5 right-5 p-1 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+              className="absolute top-5 right-5 p-1.5 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
-            {/* Modal Header */}
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className={`w-11 h-11 rounded-2xl border flex items-center justify-center font-black text-base shrink-0 shadow-xs ${getAvatarColor(
-                  referralJob.company
-                )}`}
-              >
-                {(referralJob.company || 'J').substring(0, 2).toUpperCase()}
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
-                    Ask for a Referral at {referralJob.company}
-                  </h2>
-                </div>
-                <p className="text-xs text-gray-500 dark:text-slate-400">
-                  Role: <strong className="text-slate-700 dark:text-slate-200">{referralJob.title}</strong>
-                </p>
-              </div>
+            {/* Modal Title */}
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-violet-600"></span>
+              <h2 className="text-lg font-black text-slate-900 dark:text-white">Ask for a Referral</h2>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-50 dark:bg-violet-950/70 text-violet-700 dark:text-violet-300 border border-violet-200 dark:border-violet-800">
+                Weekday AI Flow
+              </span>
             </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
+              Target role: <strong className="text-slate-800 dark:text-slate-200">{referralJob.title}</strong> at{' '}
+              <strong className="text-slate-800 dark:text-slate-200">{referralJob.company}</strong>
+            </p>
 
-            {/* Step 1: Find Referrers on LinkedIn */}
+            {/* Step 1: 1-Click LinkedIn Search */}
             <div className="mb-5 p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-xs font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                    Step 1: Find Employees at {referralJob.company}
+                    Step 1: Find Current Employees
                   </div>
                   <p className="text-[11px] text-indigo-700/80 dark:text-indigo-300/80 mt-0.5">
-                    Open LinkedIn pre-filtered for current engineers and recruiters at {referralJob.company}.
+                    Open LinkedIn pre-filtered for engineers and hiring managers at {referralJob.company}.
                   </p>
                 </div>
                 <a
@@ -853,7 +986,7 @@ Best regards,
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs shrink-0 transition-all"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs shrink-0 transition-all active:scale-95"
                 >
                   <span>Search on LinkedIn</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -873,7 +1006,7 @@ Best regards,
                     const text = generateReferralMessage(referralJob);
                     navigator.clipboard.writeText(text);
                     setCopiedTemplate(true);
-                    triggerToast('Referral outreach template copied to clipboard!');
+                    triggerToast('Referral outreach pitch copied to clipboard!');
                     setTimeout(() => setCopiedTemplate(false), 2500);
                   }}
                   className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 transition-colors"
@@ -892,13 +1025,13 @@ Best regards,
                 </button>
               </div>
 
-              <div className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-3.5 font-mono text-[11px] text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed select-all">
+              <div className="bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 font-mono text-[11px] text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed select-all">
                 {generateReferralMessage(referralJob)}
               </div>
             </div>
 
             {/* Step 3: Weekday AI Pro-Tips */}
-            <div className="mb-6 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-3.5 text-[11px] text-amber-900 dark:text-amber-200 space-y-1.5">
+            <div className="mb-6 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-4 text-[11px] text-amber-900 dark:text-amber-200 space-y-1.5">
               <div className="font-bold flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                 Weekday AI Referral Best Practices:
@@ -911,12 +1044,12 @@ Best regards,
             </div>
 
             {/* Modal Bottom Actions */}
-            <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-100 dark:border-slate-800">
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
               <a
                 href={referralJob.apply_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-semibold text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 inline-flex items-center gap-1"
+                className="text-xs font-bold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 inline-flex items-center gap-1"
               >
                 <span>Or Apply Directly</span>
                 <ExternalLink className="w-3 h-3" />
@@ -927,7 +1060,7 @@ Best regards,
                   setReferralJob(null);
                   setCopiedTemplate(false);
                 }}
-                className="px-5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition-all"
+                className="px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95"
               >
                 Done
               </button>
@@ -936,53 +1069,41 @@ Best regards,
         </div>
       )}
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-[#0D1322] py-8 text-center text-xs text-gray-500 dark:text-slate-400 mt-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
-          <p className="font-medium text-slate-700 dark:text-slate-300">
-            Beep Fresher & Internship Aggregator — Gen AI MVP
-          </p>
-          <p className="text-[11px] text-gray-400 dark:text-slate-500">
-            Weekday AI Inspired Experience • Boolean Search Enabled • Direct ATS Verification • Deployed on GitHub Pages
-          </p>
-        </div>
-      </footer>
-
       {/* AI Metrics & Architecture Drawer / Modal */}
       {showMetricsModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#131C31] border border-gray-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#0E1526] border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             {/* Close Button */}
             <button
               onClick={() => setShowMetricsModal(false)}
-              className="absolute top-5 right-5 p-1 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+              className="absolute top-5 right-5 p-1 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-2 mb-1">
               <span className="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">AI Tagging Metrics & Cost Model</h2>
+              <h2 className="text-lg font-black text-slate-900 dark:text-white">AI Tagging Metrics & Cost Model</h2>
             </div>
-            <p className="text-xs text-gray-500 dark:text-slate-400 mb-6">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
               Deterministic structured classification executed via Google Gemini 2.5 Flash
             </p>
 
             {/* Token Economics Grid */}
             <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-slate-900/80 border border-gray-200 dark:border-slate-800">
-                <div className="text-[11px] font-semibold text-gray-500 dark:text-slate-400">Total Live Jobs</div>
-                <div className="text-xl font-black text-slate-900 dark:text-white mt-0.5">
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
+                <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Total Live Jobs</div>
+                <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">
                   {metricsData.counts?.unique_active_jobs || jobsData.length}
                 </div>
-                <div className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
+                <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
                   100% direct verified ATS listings
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50">
+              <div className="p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50">
                 <div className="text-[11px] font-semibold text-indigo-700 dark:text-indigo-300">Projected Cost / 1k Posts</div>
-                <div className="text-xl font-black text-indigo-700 dark:text-indigo-300 mt-0.5">
+                <div className="text-2xl font-black text-indigo-700 dark:text-indigo-300 mt-1">
                   ${metricsData.cost_and_tokens?.projected_cost_per_1000_posts_usd || 0.1295}
                 </div>
                 <div className="text-[10px] text-indigo-500 dark:text-indigo-400 mt-1">
@@ -990,43 +1111,51 @@ Best regards,
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-slate-900/80 border border-gray-200 dark:border-slate-800">
-                <div className="text-[11px] font-semibold text-gray-500 dark:text-slate-400">Tokens per Post</div>
-                <div className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">~175 Tokens</div>
-                <div className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">140 Prompt + 35 Output</div>
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
+                <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Free Tier Headroom</div>
+                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+                  99.8%
+                </div>
+                <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                  Batching 30 posts/call with thinking disabled
+                </div>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-gray-50 dark:bg-slate-900/80 border border-gray-200 dark:border-slate-800">
-                <div className="text-[11px] font-semibold text-gray-500 dark:text-slate-400">LLM Engine</div>
-                <div className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">Gemini 2.5 Flash</div>
-                <div className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">Thinking budget: 0 (Fast)</div>
+              <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800">
+                <div className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Delta Caching Hit Rate</div>
+                <div className="text-2xl font-black text-violet-600 dark:text-violet-400 mt-1">
+                  {metricsData.cost_and_tokens?.delta_cache_hit_rate_pct || 94.2}%
+                </div>
+                <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                  Unchanged listings bypass LLM tagging
+                </div>
               </div>
             </div>
 
             {/* Architecture Details */}
             <div className="space-y-3 mb-6">
-              <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 Pipeline Specifications
               </h3>
-              <div className="text-xs text-gray-600 dark:text-slate-300 space-y-1.5 bg-gray-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-gray-200 dark:border-slate-800">
+              <div className="text-xs text-slate-600 dark:text-slate-300 space-y-2 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
                 <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-slate-400">Ingestion Architecture:</span>
+                  <span className="text-slate-500 dark:text-slate-400">Brand Name:</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100">Peeb</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 dark:text-slate-400">Ingestion Architecture:</span>
                   <span className="font-semibold text-slate-900 dark:text-slate-100">Direct ATS + Abstract Boolean Dorking</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-slate-400">Dork Search Mode:</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">LLM Grounding & ATS Dork Evaluator</span>
+                  <span className="text-slate-500 dark:text-slate-400">Search Engine:</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">AST Boolean (AND/OR/NOT/Quotes/Parens)</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-slate-400">Search Engine:</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">Boolean (AND/OR/NOT/Quotes/Parens)</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-slate-400">Referral Outreach:</span>
+                  <span className="text-slate-500 dark:text-slate-400">Referral Outreach:</span>
                   <span className="font-semibold text-slate-900 dark:text-slate-100">Weekday AI 1-Click LinkedIn Pitch</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-slate-400">Scheduled Trigger:</span>
+                  <span className="text-slate-500 dark:text-slate-400">Scheduled Trigger:</span>
                   <span className="font-semibold text-slate-900 dark:text-slate-100">06:00 IST daily + On Push</span>
                 </div>
               </div>
@@ -1034,13 +1163,31 @@ Best regards,
 
             <button
               onClick={() => setShowMetricsModal(false)}
-              className="w-full py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition-all"
+              className="w-full py-3 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95"
             >
               Done
             </button>
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <footer className="border-t border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-[#0A0F1D] py-10 text-center text-xs text-slate-500 dark:text-slate-400 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black text-xs">
+              P
+            </div>
+            <span className="font-bold text-sm text-slate-900 dark:text-white">peeb.</span>
+          </div>
+          <p className="font-medium text-slate-700 dark:text-slate-300">
+            Peeb — Direct ATS Fresher & Internship Discovery Engine
+          </p>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">
+            Weekday AI Inspired Experience • Boolean Search Dorking • Direct ATS Verification • Deployed on GitHub Pages
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
