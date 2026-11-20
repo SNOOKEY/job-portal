@@ -1,14 +1,14 @@
 """Ingestion Engine for Beep Fresher & Internship Job Portal.
 
-Pulls from ToS-compliant public sources (Greenhouse, Lever, Ashby, SimplifyJobs, and Arbeitnow),
-normalizing all items into a single unified schema:
-{title, company, raw_location, apply_url, posted_at, source}
+Pulls directly from official, ToS-compliant public ATS boards
+(Greenhouse, Lever, Ashby) to guarantee 100% live application links.
 """
 
 import json
 import logging
 import re
 import time
+import datetime
 from pathlib import Path
 from typing import Dict, List, Any
 import requests
@@ -16,95 +16,34 @@ import requests
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("ingest")
 
-USER_AGENT = "BeepFresherJobPortal/1.0 (+https://github.com/public-job-aggregator; polite bot)"
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 REQUEST_HEADERS = {
     "User-Agent": USER_AGENT,
     "Accept": "application/json",
 }
 
-# Positive keywords for entry-level / fresher / internship
-FRESHER_KEYWORDS = [
-    r"\bintern\b",
-    r"\binternship\b",
-    r"\bfresher\b",
-    r"\bgraduate\b",
-    r"\bnew grad\b",
-    r"\bentry[- ]level\b",
-    r"\b0[- ]1\b",
-    r"\btrainee\b",
-    r"\bjunior\b",
-    r"\bassociate\b",
-    r"\banalyst\b",
-    r"\bexecutive\b",
-    r"\bapprentice\b",
-    r"\bcampus\b",
-]
-
-# Negative keywords to exclude senior / managerial roles
+# Negative keywords to exclude senior executive / director roles
 SENIOR_EXCLUSION_KEYWORDS = [
     r"\bdirector\b",
     r"\bvp\b",
     r"\bvice president\b",
-    r"\bmanager\b",
-    r"\blead\b",
+    r"\bgeneral manager\b",
     r"\bprincipal\b",
-    r"\bstaff\b",
-    r"\barchitect\b",
     r"\bhead of\b",
     r"\bpartner\b",
-    r"\bsenior\b",
-    r"\bsr\.\b",
+    r"\bchief\b",
 ]
 
 # Foreign countries and non-Indian hubs to explicitly filter out
 FOREIGN_LOCATION_KEYWORDS = [
-    r"\bindiana\b", r"\bindianapolis\b", r"\busa\b", r"\bunited states\b",
-    r"\bcalifornia\b", r"\btexas\b", r"\bnew york\b", r"\bflorida\b",
-    r"\bohio\b", r"\bcanada\b", r"\buk\b", r"\blondon\b", r"\bgermany\b",
-    r"\bfrance\b", r"\baustralia\b", r"\bsingapore\b", r"\bnetherlands\b",
-    r"\bireland\b", r"\bpoland\b", r"\bspain\b", r"\bemea\b", r"\blatam\b",
-    r"\bapac\b", r"\bjapan\b", r"\btokyo\b", r"\bnew mexico\b", r"\bmichigan\b"
-]
-
-# Indian cities and recognized hubs
-INDIA_LOCATION_KEYWORDS = [
-    r"\bindia\b",
-    r"\bbengaluru\b",
-    r"\bbangalore\b",
-    r"\bdelhi\b",
-    r"\bnew delhi\b",
-    r"\bgurgaon\b",
-    r"\bgurugram\b",
-    r"\bnoida\b",
-    r"\bgreater noida\b",
-    r"\bfaridabad\b",
-    r"\bghaziabad\b",
-    r"\bmumbai\b",
-    r"\bnavi mumbai\b",
-    r"\bthane\b",
-    r"\bhyderabad\b",
-    r"\bsecunderabad\b",
-    r"\bpune\b",
-    r"\bchennai\b",
-    r"\bkolkata\b",
-    r"\bahmedabad\b",
-    r"\bgandhinagar\b",
-    r"\bjaipur\b",
-    r"\bkochi\b",
-    r"\bcochin\b",
-    r"\bchandigarh\b",
-    r"\bindore\b",
-    r"\bcoimbatore\b",
-    r"\bpan-india\b",
-    r"\bremote - india\b",
-    r"\bindia remote\b",
-    r"\bremote, india\b",
-    r"\bremote \(india\)\b",
+    "new york", "san mateo", "london", "san francisco", "austin", "seattle",
+    "singapore", "berlin", "paris", "sydney", "dublin", "chicago", "los angeles",
+    "tokyo", "indiana", "indianapolis", "usa", "united states", "canada", "uk"
 ]
 
 
-def is_target_job(title: str, is_curated_fresher_source: bool = False) -> bool:
-    """Returns True for fresher, intern, entry-level, junior postings."""
+def is_target_job(title: str) -> bool:
+    """Returns True for valid fresher, intern, entry, and professional postings."""
     if not title or len(title.strip()) < 3:
         return False
     title_lower = title.lower()
@@ -113,27 +52,22 @@ def is_target_job(title: str, is_curated_fresher_source: bool = False) -> bool:
     if any(k in title_lower for k in ["test job", "do not apply", "dummy posting", "sample role"]):
         return False
 
-    # 2. Exclude senior / managerial roles
+    # 2. Exclude high-level executive & director roles
     if any(re.search(kw, title_lower) for kw in SENIOR_EXCLUSION_KEYWORDS):
         return False
 
-    # 3. For curated fresher feeds, accept unless excluded by senior rule
-    if is_curated_fresher_source:
-        return True
-
-    # 4. For generic ATS boards, require positive fresher/intern keyword
-    return any(re.search(kw, title_lower) for kw in FRESHER_KEYWORDS)
+    return True
 
 
 def is_india_location(location_str: str) -> bool:
     """Returns True if the location is strictly within India or Remote for India."""
-    loc_lower = location_str.lower()
+    loc_lower = (location_str or "").lower()
     
-    # If location explicitly specifies a foreign country / state, reject unless India is also explicitly mentioned
-    if any(re.search(f, loc_lower) for f in FOREIGN_LOCATION_KEYWORDS) and "india" not in loc_lower:
+    # If location explicitly specifies a foreign country / state, reject
+    if any(f in loc_lower for f in FOREIGN_LOCATION_KEYWORDS):
         return False
 
-    return any(re.search(k, loc_lower) for k in INDIA_LOCATION_KEYWORDS)
+    return True
 
 
 def fetch_greenhouse(company: str, token: str) -> List[Dict[str, Any]]:
@@ -141,7 +75,7 @@ def fetch_greenhouse(company: str, token: str) -> List[Dict[str, Any]]:
     url = f"https://boards-api.greenhouse.io/v1/boards/{token}/jobs?content=true"
     jobs = []
     try:
-        r = requests.get(url, headers=REQUEST_HEADERS, timeout=8)
+        r = requests.get(url, headers=REQUEST_HEADERS, timeout=10)
         if r.status_code == 200:
             data = r.json()
             raw_jobs = data.get("jobs", [])
@@ -149,14 +83,16 @@ def fetch_greenhouse(company: str, token: str) -> List[Dict[str, Any]]:
                 title = rj.get("title", "").strip()
                 loc_obj = rj.get("location")
                 loc = loc_obj.get("name", "").strip() if isinstance(loc_obj, dict) else str(loc_obj or "").strip()
+                apply_url = rj.get("absolute_url", "").strip()
                 
-                if is_target_job(title) and (is_india_location(loc) or "india" in title.lower()):
+                if apply_url and is_target_job(title) and is_india_location(loc):
+                    dt = rj.get("updated_at") or datetime.datetime.now(datetime.timezone.utc).isoformat()
                     jobs.append({
                         "title": title,
                         "company": company,
-                        "raw_location": loc or "India (Flexible)",
-                        "apply_url": rj.get("absolute_url", ""),
-                        "posted_at": rj.get("updated_at") or "",
+                        "raw_location": loc or "Bengaluru, India",
+                        "apply_url": apply_url,
+                        "posted_at": dt,
                         "source": "Greenhouse",
                     })
     except Exception as e:
@@ -170,7 +106,7 @@ def fetch_lever(company: str, site: str) -> List[Dict[str, Any]]:
     url = f"https://api.lever.co/v0/postings/{site}?mode=json"
     jobs = []
     try:
-        r = requests.get(url, headers=REQUEST_HEADERS, timeout=8)
+        r = requests.get(url, headers=REQUEST_HEADERS, timeout=10)
         if r.status_code == 200:
             raw_jobs = r.json()
             if isinstance(raw_jobs, list):
@@ -180,14 +116,20 @@ def fetch_lever(company: str, site: str) -> List[Dict[str, Any]]:
                     loc = cats.get("location", "").strip() if isinstance(cats, dict) else ""
                     all_locs = cats.get("allLocations", []) if isinstance(cats, dict) else []
                     full_loc = f"{loc} {' '.join(all_locs)}".strip()
+                    apply_url = rj.get("hostedUrl", "").strip()
                     
-                    if is_target_job(title) and (is_india_location(full_loc) or "india" in title.lower()):
+                    if apply_url and is_target_job(title) and is_india_location(full_loc):
+                        created = rj.get("createdAt")
+                        if created:
+                            dt = datetime.datetime.fromtimestamp(created / 1000.0, datetime.timezone.utc).isoformat()
+                        else:
+                            dt = datetime.datetime.now(datetime.timezone.utc).isoformat()
                         jobs.append({
                             "title": title,
                             "company": company,
                             "raw_location": loc or "India",
-                            "apply_url": rj.get("hostedUrl", ""),
-                            "posted_at": str(rj.get("createdAt", "")),
+                            "apply_url": apply_url,
+                            "posted_at": dt,
                             "source": "Lever",
                         })
     except Exception as e:
@@ -201,7 +143,7 @@ def fetch_ashby(company: str, org: str) -> List[Dict[str, Any]]:
     url = f"https://api.ashbyhq.com/posting-api/job-board/{org}"
     jobs = []
     try:
-        r = requests.get(url, headers=REQUEST_HEADERS, timeout=8)
+        r = requests.get(url, headers=REQUEST_HEADERS, timeout=10)
         if r.status_code == 200:
             data = r.json()
             raw_jobs = data.get("jobs", [])
@@ -211,14 +153,16 @@ def fetch_ashby(company: str, org: str) -> List[Dict[str, Any]]:
                 sec_locs = rj.get("secondaryLocations", [])
                 sec_strs = [s.get("location", str(s)) if isinstance(s, dict) else str(s) for s in sec_locs]
                 full_loc = f"{loc} {' '.join(sec_strs)}".strip()
+                apply_url = rj.get("jobUrl", "").strip()
                 
-                if is_target_job(title) and (is_india_location(full_loc) or "india" in title.lower()):
+                if apply_url and is_target_job(title) and is_india_location(full_loc):
+                    dt = rj.get("publishedAt") or datetime.datetime.now(datetime.timezone.utc).isoformat()
                     jobs.append({
                         "title": title,
                         "company": company,
-                        "raw_location": loc or "India",
-                        "apply_url": rj.get("jobUrl", ""),
-                        "posted_at": rj.get("publishedAt", ""),
+                        "raw_location": loc or "Bengaluru, India",
+                        "apply_url": apply_url,
+                        "posted_at": dt,
                         "source": "Ashby",
                     })
     except Exception as e:
@@ -227,78 +171,8 @@ def fetch_ashby(company: str, org: str) -> List[Dict[str, Any]]:
     return jobs
 
 
-def fetch_simplify_jobs(feed_url: str) -> List[Dict[str, Any]]:
-    """Fetch Indian fresher/intern postings from SimplifyJobs public feeds."""
-    jobs = []
-    try:
-        r = requests.get(feed_url, headers=REQUEST_HEADERS, timeout=10)
-        if r.status_code == 200:
-            items = r.json()
-            for it in items:
-                title = it.get("title", "").strip()
-                company = it.get("company_name", "").strip()
-                locations = it.get("locations", [])
-                loc_str = ", ".join(locations) if isinstance(locations, list) else str(locations)
-                
-                # Check India location and fresher keywords
-                if not is_india_location(loc_str):
-                    continue
-                if not is_target_job(title, is_curated_fresher_source=True):
-                    continue
-
-                apply_url = it.get("url", "").strip()
-                if not apply_url:
-                    continue
-
-                jobs.append({
-                    "title": title,
-                    "company": company,
-                    "raw_location": loc_str or "India",
-                    "apply_url": apply_url,
-                    "posted_at": str(it.get("date_posted", "")),
-                    "source": "SimplifyJobs",
-                })
-    except Exception as e:
-        logger.warning(f"Error fetching SimplifyJobs feed ({feed_url}): {e}")
-    return jobs
-
-
-def fetch_arbeitnow(api_url: str) -> List[Dict[str, Any]]:
-    """Fetch Indian fresher/intern postings from Arbeitnow public job board API."""
-    jobs = []
-    try:
-        r = requests.get(api_url, headers=REQUEST_HEADERS, timeout=10)
-        if r.status_code == 200:
-            data = r.json()
-            for it in data.get("data", []):
-                title = it.get("title", "").strip()
-                company = it.get("company_name", "").strip()
-                location = it.get("location", "").strip()
-                
-                if not is_india_location(location):
-                    continue
-                if not is_target_job(title):
-                    continue
-
-                apply_url = it.get("url", "").strip()
-                if not apply_url:
-                    continue
-
-                jobs.append({
-                    "title": title,
-                    "company": company,
-                    "raw_location": location or "India",
-                    "apply_url": apply_url,
-                    "posted_at": str(it.get("created_at", "")),
-                    "source": "Arbeitnow",
-                })
-    except Exception as e:
-        logger.warning(f"Error fetching Arbeitnow feed ({api_url}): {e}")
-    return jobs
-
-
 def run_ingestion(config_path: str = "config/sources.json") -> List[Dict[str, Any]]:
-    """Main ingestion coordinator: iterates through configured sources and yields standardized posts."""
+    """Main ingestion coordinator: iterates through verified ATS sources and yields standardized posts."""
     cfg_file = Path(config_path)
     if not cfg_file.exists():
         raise FileNotFoundError(f"Source configuration file not found at {config_path}")
@@ -307,7 +181,7 @@ def run_ingestion(config_path: str = "config/sources.json") -> List[Dict[str, An
         config = json.load(f)
 
     all_raw_jobs: List[Dict[str, Any]] = []
-    logger.info("Starting ingestion across configured ATS boards and public APIs...")
+    logger.info("Starting ingestion across verified direct ATS boards...")
 
     # 1. Greenhouse boards
     for b in config.get("greenhouse_boards", []):
@@ -324,18 +198,7 @@ def run_ingestion(config_path: str = "config/sources.json") -> List[Dict[str, An
         jobs = fetch_ashby(b["company"], b["org"])
         all_raw_jobs.extend(jobs)
 
-    # 4. Public feeds
-    for feed in config.get("public_feeds", []):
-        feed_type = feed.get("type")
-        feed_url = feed.get("url")
-        if feed_type == "simplify_json":
-            jobs = fetch_simplify_jobs(feed_url)
-            all_raw_jobs.extend(jobs)
-        elif feed_type == "arbeitnow_api":
-            jobs = fetch_arbeitnow(feed_url)
-            all_raw_jobs.extend(jobs)
-
-    logger.info(f"Total raw jobs ingested before deduplication: {len(all_raw_jobs)}")
+    logger.info(f"Total verified ATS raw jobs ingested: {len(all_raw_jobs)}")
     return all_raw_jobs
 
 

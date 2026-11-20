@@ -1,24 +1,24 @@
 {
-  "timestamp": "2026-11-20T13:10:07.031629+00:00",
-  "duration_seconds": 18.86,
+  "timestamp": "2026-11-20T13:33:17.537741+00:00",
+  "duration_seconds": 3.45,
   "pipeline_status": "success",
   "counts": {
-    "raw_fetched": 51,
-    "duplicates_removed": 3,
-    "unique_active_jobs": 48
+    "raw_fetched": 388,
+    "duplicates_removed": 8,
+    "unique_active_jobs": 336
   },
   "cost_and_tokens": {
     "tagging_mode": "gemini-2.5-flash (thinking budget: 0)",
-    "total_posts_live": 48,
-    "delta_cached_posts": 44,
-    "newly_tagged_posts": 4,
-    "input_tokens": 0,
-    "output_tokens": 0,
-    "total_tokens": 0,
-    "run_cost_usd": 0.0,
-    "run_cost_inr": 0.0,
-    "projected_cost_per_1000_posts_usd": 0.0,
-    "projected_cost_per_1000_posts_inr": 0.0,
+    "total_posts_live": 336,
+    "delta_cached_posts": 336,
+    "newly_tagged_posts": 0,
+    "input_tokens": 47040,
+    "output_tokens": 11760,
+    "total_tokens": 58800,
+    "run_cost_usd": 0.043512,
+    "run_cost_inr": 3.7638,
+    "projected_cost_per_1000_posts_usd": 0.1295,
+    "projected_cost_per_1000_posts_inr": 11.2,
     "pricing_reference": {
       "model": "gemini-2.5-flash",
       "thinking_budget": 0,
@@ -29,36 +29,42 @@
   },
   "distributions": {
     "by_role": {
-      "Other": 19,
+      "Other": 194,
+      "Product": 30,
+      "Sales & BD": 29,
+      "Operations & HR": 24,
+      "Marketing & Growth": 16,
+      "AI / ML": 13,
       "Software Engineering": 12,
-      "Operations & HR": 7,
-      "AI / ML": 6,
-      "Sales & BD": 2,
-      "Marketing & Growth": 1,
-      "DevOps / Cloud": 1
+      "Data & Analytics": 9,
+      "Design": 7,
+      "DevOps / Cloud": 2
     },
     "by_city": {
-      "Bengaluru": 16,
-      "Delhi NCR": 14,
-      "Chennai": 5,
-      "Remote (India)": 5,
-      "Mumbai": 4,
-      "Hyderabad": 2,
-      "Other": 2
+      "Bengaluru": 129,
+      "Delhi NCR": 99,
+      "Other": 54,
+      "Mumbai": 35,
+      "Hyderabad": 6,
+      "Ahmedabad": 5,
+      "Remote (India)": 3,
+      "Chennai": 3,
+      "Pune": 2
     },
     "by_experience": {
-      "Fresher": 24,
-      "Mid-Level": 13,
-      "Internship": 11
+      "Senior": 211,
+      "Fresher": 101,
+      "Mid-Level": 18,
+      "Internship": 6
     },
     "by_job_type": {
-      "Full-Time Fresher": 37,
-      "Internship": 11
+      "Full-Time Fresher": 330,
+      "Internship": 6
     },
     "by_source": {
-      "SimplifyJobs": 25,
-      "Lever": 20,
-      "Greenhouse": 3
+      "Lever": 238,
+      "Greenhouse": 87,
+      "Ashby": 11
     }
   }
 }
