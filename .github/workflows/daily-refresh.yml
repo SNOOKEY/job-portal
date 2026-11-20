@@ -1,6 +1,9 @@
 name: Daily Beep Job Portal Refresh & Deploy
 
 on:
+  push:
+    branches:
+      - master
   schedule:
     # 06:00 IST daily = 00:30 UTC
     - cron: '30 0 * * *'
