@@ -1,24 +1,24 @@
 {
-  "timestamp": "2026-11-19T18:37:33.881397+00:00",
-  "duration_seconds": 3.64,
+  "timestamp": "2026-11-20T07:39:50.643189+00:00",
+  "duration_seconds": 8.2,
   "pipeline_status": "success",
   "counts": {
-    "raw_fetched": 1927,
-    "duplicates_removed": 203,
-    "unique_active_jobs": 1724
+    "raw_fetched": 1917,
+    "duplicates_removed": 200,
+    "unique_active_jobs": 1717
   },
   "cost_and_tokens": {
     "tagging_mode": "gemini-2.5-flash (thinking budget: 0)",
-    "total_posts_live": 1724,
-    "delta_cached_posts": 1724,
-    "newly_tagged_posts": 0,
+    "total_posts_live": 1717,
+    "delta_cached_posts": 1713,
+    "newly_tagged_posts": 4,
     "input_tokens": 0,
     "output_tokens": 0,
     "total_tokens": 0,
     "run_cost_usd": 0.0,
     "run_cost_inr": 0.0,
-    "projected_cost_per_1000_posts_usd": 0.1295,
-    "projected_cost_per_1000_posts_inr": 11.2,
+    "projected_cost_per_1000_posts_usd": 0.0,
+    "projected_cost_per_1000_posts_inr": 0.0,
     "pricing_reference": {
       "model": "gemini-2.5-flash",
       "thinking_budget": 0,
@@ -29,12 +29,12 @@
   },
   "distributions": {
     "by_role": {
-      "Software Engineering": 637,
-      "Other": 369,
+      "Software Engineering": 633,
+      "Other": 370,
       "AI / ML": 322,
-      "Data & Analytics": 196,
-      "Product": 80,
-      "Operations & HR": 42,
+      "Data & Analytics": 194,
+      "Product": 79,
+      "Operations & HR": 41,
       "Sales & BD": 32,
       "Marketing & Growth": 24,
       "Design": 10,
@@ -42,7 +42,7 @@
       "QA / Testing": 5
     },
     "by_city": {
-      "Remote (India)": 1410,
+      "Remote (India)": 1403,
       "Bengaluru": 140,
       "Delhi NCR": 103,
       "Mumbai": 37,
@@ -53,17 +53,17 @@
       "Ahmedabad": 5
     },
     "by_experience": {
-      "Internship": 594,
-      "Fresher": 460,
-      "Mid-Level": 403,
-      "Senior": 267
+      "Internship": 589,
+      "Fresher": 457,
+      "Mid-Level": 405,
+      "Senior": 266
     },
     "by_job_type": {
-      "Full-Time Fresher": 1129,
-      "Internship": 595
+      "Full-Time Fresher": 1127,
+      "Internship": 590
     },
     "by_source": {
-      "SimplifyJobs": 1381,
+      "SimplifyJobs": 1374,
       "Lever": 206,
       "Ashby": 72,
       "Greenhouse": 65
