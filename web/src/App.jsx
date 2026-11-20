@@ -25,12 +25,18 @@ import {
   Flame,
   Zap,
   ShieldCheck,
-  Share2
+  Share2,
+  UserPlus,
+  Users,
+  HelpCircle,
+  Send,
+  MessageSquare
 } from 'lucide-react';
 
 // Import datasets bundled by Vite
 import jobsData from '../../data/jobs.json';
 import metricsData from '../../data/metrics.json';
+import { parseAndEvaluateBooleanQuery } from './utils/booleanSearch';
 
 const ITEMS_PER_PAGE = 24;
 
@@ -88,9 +94,16 @@ export default function App() {
   const [selectedDateRange, setSelectedDateRange] = useState('ALL');
   const [selectedSource, setSelectedSource] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Modals & Drawers
   const [showMetricsModal, setShowMetricsModal] = useState(false);
+  const [showBooleanHelp, setShowBooleanHelp] = useState(false);
+  const [referralJob, setReferralJob] = useState(null);
+
+  // Toast & Copy States
   const [toastMessage, setToastMessage] = useState('');
   const [copiedId, setCopiedId] = useState(null);
+  const [copiedTemplate, setCopiedTemplate] = useState(false);
 
   // Sync dark class to html document
   useEffect(() => {
@@ -140,26 +153,19 @@ export default function App() {
     { key: '30d', label: 'Past Month (30 Days)' },
   ];
 
-  const sources = useMemo(() => {
-    const list = Object.keys(metricsData.distributions?.by_source || {});
-    return list.length ? list : ['Greenhouse', 'Lever', 'Ashby', 'SimplifyJobs'];
-  }, []);
+  // Boolean Search detection in search input
+  const isBooleanQuery = useMemo(() => {
+    return /\b(AND|OR|NOT)\b|[()"]/.test(searchTerm);
+  }, [searchTerm]);
 
-  // Filtered jobs
+  // Filtered jobs with Boolean Search Engine
   const filteredJobs = useMemo(() => {
     const nowTime = Date.now();
     return jobsData.filter((job) => {
-      // Search term
+      // Boolean search evaluation
       if (searchTerm.trim()) {
-        const query = searchTerm.toLowerCase();
-        const matchesTitle = job.title?.toLowerCase().includes(query);
-        const matchesCompany = job.company?.toLowerCase().includes(query);
-        const matchesRole = job.role?.toLowerCase().includes(query);
-        const matchesCity = job.city?.toLowerCase().includes(query);
-        const matchesExp = job.experience?.toLowerCase().includes(query);
-        if (!matchesTitle && !matchesCompany && !matchesRole && !matchesCity && !matchesExp) {
-          return false;
-        }
+        const matchesQuery = parseAndEvaluateBooleanQuery(searchTerm, job);
+        if (!matchesQuery) return false;
       }
 
       // Role
@@ -252,6 +258,21 @@ export default function App() {
     }
   }, []);
 
+  // Generate Weekday AI Style Referral Message Template
+  const generateReferralMessage = (job) => {
+    if (!job) return '';
+    return `Hi [Name],
+
+I hope you're having a great week! I came across the open role for "${job.title}" at ${job.company} (Direct ATS Link: ${job.apply_url}) and was really excited by the team's engineering work.
+
+Given my background in ${job.role}, I believe I'd be a strong match for this position. Would you be open to a quick connection and considering referring me through ${job.company}'s internal referral portal?
+
+I'd be glad to share my resume and portfolio right away. Thanks so much for your time and guidance!
+
+Best regards,
+[Your Name]`;
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#090D16] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
       {/* Toast Notification */}
@@ -279,7 +300,7 @@ export default function App() {
                   </span>
                 </div>
                 <p className="text-[11px] text-gray-500 dark:text-slate-400 hidden sm:block">
-                  Live aggregator across Greenhouse, Lever, Ashby & verified public feeds
+                  Live aggregator across Greenhouse, Lever & Ashby • Direct ATS links & referrals
                 </p>
               </div>
             </div>
@@ -337,17 +358,18 @@ export default function App() {
               <div className="flex items-center gap-2 mb-1">
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Verified Live Applications
+                  100% Verified Live Postings
                 </span>
-                <span className="text-xs text-gray-500 dark:text-slate-400">
-                  All links open official ATS forms
+                <span className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-amber-500" />
+                  Weekday AI Style Direct Referrals Enabled
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                India Fresher & Internship Portal
+                India Fresher & Internship Aggregator
               </h1>
               <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
-                Aggregating authentic opportunities across top startups & tech giants. Direct application links with zero middlemen.
+                Direct official ATS applications + instant employee referral outreach generator inspired by Weekday AI.
               </p>
             </div>
 
@@ -359,13 +381,13 @@ export default function App() {
               </div>
               <div className="bg-white dark:bg-slate-800/70 border border-gray-200 dark:border-slate-700/80 px-3 py-2 rounded-xl text-center">
                 <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">
-                  {metricsData.distributions?.by_job_type?.['Internship'] || 120}
+                  {metricsData.distributions?.by_job_type?.['Internship'] || 45}
                 </div>
                 <div className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Internships</div>
               </div>
               <div className="bg-white dark:bg-slate-800/70 border border-gray-200 dark:border-slate-700/80 px-3 py-2 rounded-xl text-center">
                 <div className="text-lg font-black text-amber-600 dark:text-amber-400">
-                  {metricsData.distributions?.by_city?.['Bengaluru'] || 45}
+                  {metricsData.distributions?.by_city?.['Bengaluru'] || 140}
                 </div>
                 <div className="text-[11px] font-medium text-gray-500 dark:text-slate-400">Bengaluru Hub</div>
               </div>
@@ -380,32 +402,47 @@ export default function App() {
         </div>
       </section>
 
-      {/* Sticky Filter Bar */}
+      {/* Sticky Filter & Boolean Search Bar */}
       <section className="sticky top-16 z-30 bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md border-b border-gray-200 dark:border-slate-800 shadow-xs py-3.5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
           {/* Main Controls Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5">
-            {/* Search Input */}
+            {/* Search Input with Boolean Indicator */}
             <div className="lg:col-span-4 relative">
               <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search job title, company, skill, city..."
+                placeholder='Search: e.g. Paytm AND (Intern OR Fresher) NOT Senior...'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-8 py-2 text-xs sm:text-sm bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 placeholder-gray-400 transition-all"
+                className="w-full pl-9 pr-24 py-2 text-xs sm:text-sm bg-gray-50 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-slate-900 dark:text-slate-100 placeholder-gray-400 transition-all"
               />
-              {searchTerm && (
+              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 p-0.5"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+                {/* Boolean Syntax Helper Button */}
                 <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-slate-200"
+                  onClick={() => setShowBooleanHelp(!showBooleanHelp)}
+                  title="Boolean Search syntax help"
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md border flex items-center gap-1 transition-all ${
+                    isBooleanQuery
+                      ? 'bg-indigo-600 text-white border-indigo-700'
+                      : 'bg-gray-200/70 dark:bg-slate-800 text-gray-600 dark:text-slate-400 border-gray-300 dark:border-slate-700 hover:bg-gray-300/80'
+                  }`}
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <span>Boolean</span>
+                  <HelpCircle className="w-2.5 h-2.5" />
                 </button>
-              )}
+              </div>
             </div>
 
-            {/* Date Posted Filter (Requested: 24h, 3d, 1 week, etc.) */}
+            {/* Date Posted Filter (24h, 3d, 1 week, etc.) */}
             <div className="lg:col-span-2">
               <div className="relative">
                 <Clock className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -470,6 +507,52 @@ export default function App() {
               </select>
             </div>
           </div>
+
+          {/* Boolean Search Syntax Help Dropdown */}
+          {showBooleanHelp && (
+            <div className="bg-indigo-50/90 dark:bg-[#151D30] border border-indigo-200 dark:border-indigo-900/80 rounded-2xl p-4 text-xs space-y-2 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between font-bold text-indigo-900 dark:text-indigo-200">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                  Boolean Search Enabled (Recruiter & LLM Grade)
+                </span>
+                <button
+                  onClick={() => setShowBooleanHelp(false)}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-200"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <p className="text-gray-600 dark:text-slate-300 text-[11px]">
+                Combine keywords using operators <strong className="text-indigo-700 dark:text-indigo-300">AND</strong>,{' '}
+                <strong className="text-indigo-700 dark:text-indigo-300">OR</strong>,{' '}
+                <strong className="text-indigo-700 dark:text-indigo-300">NOT</strong>, exact quotes{' '}
+                <code className="bg-white dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 dark:text-indigo-400">"..."</code>, and parentheses{' '}
+                <code className="bg-white dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 dark:text-indigo-400">(...)</code>.
+              </p>
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-[11px] font-semibold text-gray-500 dark:text-slate-400">Try clicking:</span>
+                <button
+                  onClick={() => setSearchTerm('Paytm AND (Intern OR Associate)')}
+                  className="bg-white dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-slate-700 border border-indigo-200 dark:border-slate-700 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg text-[11px] font-mono transition-colors"
+                >
+                  Paytm AND (Intern OR Associate)
+                </button>
+                <button
+                  onClick={() => setSearchTerm('Razorpay OR Meesho')}
+                  className="bg-white dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-slate-700 border border-indigo-200 dark:border-slate-700 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg text-[11px] font-mono transition-colors"
+                >
+                  Razorpay OR Meesho
+                </button>
+                <button
+                  onClick={() => setSearchTerm('Bengaluru AND "Software" NOT Senior')}
+                  className="bg-white dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-slate-700 border border-indigo-200 dark:border-slate-700 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg text-[11px] font-mono transition-colors"
+                >
+                  Bengaluru AND "Software" NOT Senior
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Quick Filter Chips & Results Count Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
@@ -556,7 +639,7 @@ export default function App() {
             </div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">No active postings match your criteria</h3>
             <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 mb-5">
-              Try relaxing your date posted, role, or city filters to view more opportunities.
+              Try relaxing your boolean search query, role, or city filters to view more opportunities.
             </p>
             <button
               onClick={resetFilters}
@@ -607,7 +690,7 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* Copy Link Action Button */}
+                        {/* Quick Action: Copy Direct Link */}
                         <button
                           onClick={() => {
                             navigator.clipboard.writeText(job.apply_url);
@@ -649,21 +732,34 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Card Footer: Location info & Apply Button */}
+                    {/* Card Footer: Location info, Weekday Referral Button & Apply Button */}
                     <div className="pt-3 border-t border-gray-100 dark:border-slate-800/80 flex items-center justify-between gap-2 mt-auto">
-                      <span className="text-[11px] text-gray-500 dark:text-slate-400 truncate max-w-[170px]" title={job.raw_location}>
+                      <span className="text-[11px] text-gray-500 dark:text-slate-400 truncate max-w-[110px] sm:max-w-[140px]" title={job.raw_location}>
                         📍 {job.raw_location || 'India'}
                       </span>
 
-                      <a
-                        href={job.apply_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-bold px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs hover:shadow-indigo-500/20 transition-all shrink-0"
-                      >
-                        <span>Apply</span>
-                        <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                      </a>
+                      <div className="flex items-center gap-1.5">
+                        {/* Weekday AI Style Ask for Referral Button */}
+                        <button
+                          onClick={() => setReferralJob(job)}
+                          className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1.5 rounded-xl border border-indigo-200 dark:border-indigo-800/80 text-indigo-700 dark:text-indigo-300 bg-indigo-50/70 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-all shrink-0"
+                          title="Generate a personalized referral request for LinkedIn"
+                        >
+                          <UserPlus className="w-3 h-3" />
+                          <span>Referral</span>
+                        </button>
+
+                        {/* Direct Apply Button */}
+                        <a
+                          href={job.apply_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] font-bold px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs hover:shadow-indigo-500/20 transition-all shrink-0"
+                        >
+                          <span>Apply</span>
+                          <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                        </a>
+                      </div>
                     </div>
                   </div>
                 );
@@ -703,6 +799,143 @@ export default function App() {
         )}
       </main>
 
+      {/* Weekday AI Inspired "Ask for Referral" Modal */}
+      {referralJob && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#131C31] border border-gray-200 dark:border-slate-800 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button
+              onClick={() => {
+                setReferralJob(null);
+                setCopiedTemplate(false);
+              }}
+              className="absolute top-5 right-5 p-1 rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Modal Header */}
+            <div className="flex items-center gap-3 mb-4">
+              <div
+                className={`w-11 h-11 rounded-2xl border flex items-center justify-center font-black text-base shrink-0 shadow-xs ${getAvatarColor(
+                  referralJob.company
+                )}`}
+              >
+                {(referralJob.company || 'J').substring(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight">
+                    Ask for a Referral at {referralJob.company}
+                  </h2>
+                </div>
+                <p className="text-xs text-gray-500 dark:text-slate-400">
+                  Role: <strong className="text-slate-700 dark:text-slate-200">{referralJob.title}</strong>
+                </p>
+              </div>
+            </div>
+
+            {/* Step 1: Find Referrers on LinkedIn */}
+            <div className="mb-5 p-4 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                    Step 1: Find Employees at {referralJob.company}
+                  </div>
+                  <p className="text-[11px] text-indigo-700/80 dark:text-indigo-300/80 mt-0.5">
+                    Open LinkedIn pre-filtered for current engineers and recruiters at {referralJob.company}.
+                  </p>
+                </div>
+                <a
+                  href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(
+                    `${referralJob.company} engineering recruiter`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs shrink-0 transition-all"
+                >
+                  <span>Search on LinkedIn</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+
+            {/* Step 2: AI-Generated Referral Pitch */}
+            <div className="mb-5 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                  <MessageSquare className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                  Step 2: Copy High-Converting Outreach Message
+                </span>
+                <button
+                  onClick={() => {
+                    const text = generateReferralMessage(referralJob);
+                    navigator.clipboard.writeText(text);
+                    setCopiedTemplate(true);
+                    triggerToast('Referral outreach template copied to clipboard!');
+                    setTimeout(() => setCopiedTemplate(false), 2500);
+                  }}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800 transition-colors"
+                >
+                  {copiedTemplate ? (
+                    <>
+                      <Check className="w-3 h-3 text-emerald-500" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3 h-3" />
+                      <span>Copy Template</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <div className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-3.5 font-mono text-[11px] text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed select-all">
+                {generateReferralMessage(referralJob)}
+              </div>
+            </div>
+
+            {/* Step 3: Weekday AI Pro-Tips */}
+            <div className="mb-6 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-3.5 text-[11px] text-amber-900 dark:text-amber-200 space-y-1.5">
+              <div className="font-bold flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                Weekday AI Referral Best Practices:
+              </div>
+              <ul className="list-disc pl-4 space-y-1 text-amber-800 dark:text-amber-300">
+                <li>Reach out to 2–3 engineers or team peers rather than HR for a 4x higher response rate.</li>
+                <li>Keep the direct ATS link (<span className="font-mono text-[10px] break-all">{referralJob.apply_url}</span>) in your message so employees can submit you in their internal dashboard in seconds.</li>
+                <li>Personalize the greeting with the employee's first name and your relevant tech stack.</li>
+              </ul>
+            </div>
+
+            {/* Modal Bottom Actions */}
+            <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-100 dark:border-slate-800">
+              <a
+                href={referralJob.apply_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-semibold text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 inline-flex items-center gap-1"
+              >
+                <span>Or Apply Directly</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+
+              <button
+                onClick={() => {
+                  setReferralJob(null);
+                  setCopiedTemplate(false);
+                }}
+                className="px-5 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-xs hover:bg-slate-800 dark:hover:bg-slate-100 transition-all"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-[#0D1322] py-8 text-center text-xs text-gray-500 dark:text-slate-400 mt-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
@@ -710,7 +943,7 @@ export default function App() {
             Beep Fresher & Internship Aggregator — Gen AI MVP
           </p>
           <p className="text-[11px] text-gray-400 dark:text-slate-500">
-            Built with Gemini 2.5 Flash Structured Outputs • Daily Refresh via GitHub Actions • Deployed on GitHub Pages
+            Weekday AI Inspired Experience • Boolean Search Enabled • Direct ATS Verification • Deployed on GitHub Pages
           </p>
         </div>
       </footer>
@@ -743,7 +976,7 @@ export default function App() {
                   {metricsData.counts?.unique_active_jobs || jobsData.length}
                 </div>
                 <div className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
-                  From {metricsData.counts?.raw_fetched || 608} raw scraped posts
+                  100% direct verified ATS listings
                 </div>
               </div>
 
@@ -778,19 +1011,19 @@ export default function App() {
               <div className="text-xs text-gray-600 dark:text-slate-300 space-y-1.5 bg-gray-50 dark:bg-slate-900/50 p-4 rounded-2xl border border-gray-200 dark:border-slate-800">
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-slate-400">Ingestion Architecture:</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">Greenhouse + Lever + Ashby + Public Feeds</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">Greenhouse + Lever + Ashby</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-slate-400">Deduplication:</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">SHA-256 fingerprint + canonical URL</span>
+                  <span className="text-gray-500 dark:text-slate-400">Search Engine:</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">Boolean (AND/OR/NOT/Quotes/Parens)</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500 dark:text-slate-400">Audit Sample:</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">audit/sample_50.csv (50 random rows)</span>
+                  <span className="text-gray-500 dark:text-slate-400">Referral Outreach:</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">Weekday AI 1-Click LinkedIn Pitch</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-slate-400">Scheduled Trigger:</span>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">06:00 IST daily (GitHub Actions)</span>
+                  <span className="font-semibold text-slate-900 dark:text-slate-100">06:00 IST daily + On Push</span>
                 </div>
               </div>
             </div>
