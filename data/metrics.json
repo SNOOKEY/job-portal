@@ -1,16 +1,16 @@
 {
-  "timestamp": "2026-11-20T07:39:50.643189+00:00",
-  "duration_seconds": 8.2,
+  "timestamp": "2026-11-20T13:10:07.031629+00:00",
+  "duration_seconds": 18.86,
   "pipeline_status": "success",
   "counts": {
-    "raw_fetched": 1917,
-    "duplicates_removed": 200,
-    "unique_active_jobs": 1717
+    "raw_fetched": 51,
+    "duplicates_removed": 3,
+    "unique_active_jobs": 48
   },
   "cost_and_tokens": {
     "tagging_mode": "gemini-2.5-flash (thinking budget: 0)",
-    "total_posts_live": 1717,
-    "delta_cached_posts": 1713,
+    "total_posts_live": 48,
+    "delta_cached_posts": 44,
     "newly_tagged_posts": 4,
     "input_tokens": 0,
     "output_tokens": 0,
@@ -29,44 +29,36 @@
   },
   "distributions": {
     "by_role": {
-      "Software Engineering": 633,
-      "Other": 370,
-      "AI / ML": 322,
-      "Data & Analytics": 194,
-      "Product": 79,
-      "Operations & HR": 41,
-      "Sales & BD": 32,
-      "Marketing & Growth": 24,
-      "Design": 10,
-      "DevOps / Cloud": 7,
-      "QA / Testing": 5
+      "Other": 19,
+      "Software Engineering": 12,
+      "Operations & HR": 7,
+      "AI / ML": 6,
+      "Sales & BD": 2,
+      "Marketing & Growth": 1,
+      "DevOps / Cloud": 1
     },
     "by_city": {
-      "Remote (India)": 1403,
-      "Bengaluru": 140,
-      "Delhi NCR": 103,
-      "Mumbai": 37,
-      "Pune": 8,
-      "Other": 8,
-      "Chennai": 7,
-      "Hyderabad": 6,
-      "Ahmedabad": 5
+      "Bengaluru": 16,
+      "Delhi NCR": 14,
+      "Chennai": 5,
+      "Remote (India)": 5,
+      "Mumbai": 4,
+      "Hyderabad": 2,
+      "Other": 2
     },
     "by_experience": {
-      "Internship": 589,
-      "Fresher": 457,
-      "Mid-Level": 405,
-      "Senior": 266
+      "Fresher": 24,
+      "Mid-Level": 13,
+      "Internship": 11
     },
     "by_job_type": {
-      "Full-Time Fresher": 1127,
-      "Internship": 590
+      "Full-Time Fresher": 37,
+      "Internship": 11
     },
     "by_source": {
-      "SimplifyJobs": 1374,
-      "Lever": 206,
-      "Ashby": 72,
-      "Greenhouse": 65
+      "SimplifyJobs": 25,
+      "Lever": 20,
+      "Greenhouse": 3
     }
   }
 }
