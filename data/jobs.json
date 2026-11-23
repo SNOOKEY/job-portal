@@ -140,20 +140,6 @@
     "confidence": 0.92
   },
   {
-    "title": "Frontend Engineer",
-    "company": "Razorpay",
-    "raw_location": "Bengaluru",
-    "apply_url": "https://job-boards.greenhouse.io/razorpaysoftwareprivatelimited/jobs/4731054005",
-    "posted_at": "2026-11-18T04:54:48-05:00",
-    "source": "Greenhouse",
-    "id": "job-2186a078a23814fb",
-    "role": "Software Engineering",
-    "city": "Bengaluru",
-    "experience": "Mid-Level",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
     "title": "Group Manager, Banking Alliance",
     "company": "Razorpay",
     "raw_location": "Mumbai",
@@ -546,20 +532,6 @@
     "confidence": 0.92
   },
   {
-    "title": "Inside Sales Lead – AI-Led Sales, Global Advertising",
-    "company": "InMobi",
-    "raw_location": "Bangalore",
-    "apply_url": "https://job-boards.greenhouse.io/inmobi/jobs/8336816",
-    "posted_at": "2026-11-04T23:56:02-05:00",
-    "source": "Greenhouse",
-    "id": "job-43c293a2f3fd6b3f",
-    "role": "AI / ML",
-    "city": "Bengaluru",
-    "experience": "Senior",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
     "title": "Lead -  Account Development",
     "company": "InMobi",
     "raw_location": "Bangalore",
@@ -924,20 +896,6 @@
     "confidence": 0.92
   },
   {
-    "title": "Senior Associate -Content Marketing",
-    "company": "InMobi",
-    "raw_location": "Bengaluru",
-    "apply_url": "https://job-boards.greenhouse.io/inmobi/jobs/8166597",
-    "posted_at": "2026-10-26T03:54:18-04:00",
-    "source": "Greenhouse",
-    "id": "job-3aa3419fb3db361c",
-    "role": "Marketing & Growth",
-    "city": "Bengaluru",
-    "experience": "Senior",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
     "title": "Senior Associate - Video Editor",
     "company": "InMobi",
     "raw_location": "Bangalore",
@@ -1082,7 +1040,7 @@
     "company": "InMobi",
     "raw_location": "Vietnam",
     "apply_url": "https://job-boards.greenhouse.io/inmobi/jobs/8263650",
-    "posted_at": "2026-11-05T20:38:42-05:00",
+    "posted_at": "2026-11-23T01:34:18-05:00",
     "source": "Greenhouse",
     "id": "job-1958e271c991f732",
     "role": "Sales & BD",
@@ -1456,20 +1414,6 @@
     "confidence": 0.92
   },
   {
-    "title": "AVP - Business Management",
-    "company": "Paytm",
-    "raw_location": "Mumbai, Maharashtra",
-    "apply_url": "https://jobs.lever.co/paytm/00765276-c16d-47cf-99d2-85c8c91ada3c",
-    "posted_at": "2026-07-23T08:26:47.917000+00:00",
-    "source": "Lever",
-    "id": "job-06f934165fc32b03",
-    "role": "Other",
-    "city": "Mumbai",
-    "experience": "Fresher",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
     "title": "Business Analyst - Assistant Manager - Lending Reserve",
     "company": "Paytm",
     "raw_location": "Noida, Uttar Pradesh",
@@ -1526,20 +1470,6 @@
     "confidence": 0.92
   },
   {
-    "title": "Business Manager - SIP/ETF - Paytm Money",
-    "company": "Paytm",
-    "raw_location": "Mumbai, Maharashtra",
-    "apply_url": "https://jobs.lever.co/paytm/db20324e-47cf-410a-99de-d1b3a1870f3d",
-    "posted_at": "2026-05-26T04:44:25.222000+00:00",
-    "source": "Lever",
-    "id": "job-187ae1a58182514c",
-    "role": "Other",
-    "city": "Mumbai",
-    "experience": "Senior",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
     "title": "Business Operations Manager - Telco",
     "company": "Paytm",
     "raw_location": "Noida, Uttar Pradesh",
@@ -1550,20 +1480,6 @@
     "role": "Operations & HR",
     "city": "Delhi NCR",
     "experience": "Senior",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
-    "title": "Business Partnerships - Insurance",
-    "company": "Paytm",
-    "raw_location": "Noida, Uttar Pradesh",
-    "apply_url": "https://jobs.lever.co/paytm/85666bed-f6cd-4454-9cad-5906ba185cbc",
-    "posted_at": "2026-06-12T04:17:39.220000+00:00",
-    "source": "Lever",
-    "id": "job-45dd2a7b6a0f3da3",
-    "role": "Other",
-    "city": "Delhi NCR",
-    "experience": "Fresher",
     "job_type": "Full-Time Fresher",
     "confidence": 0.92
   },
@@ -1589,20 +1505,6 @@
     "posted_at": "2026-09-22T10:31:10.748000+00:00",
     "source": "Lever",
     "id": "job-a5e676774aac733c",
-    "role": "Other",
-    "city": "Delhi NCR",
-    "experience": "Fresher",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
-    "title": "Client Onboarding - Paytm Pi Agent (SMB)",
-    "company": "Paytm",
-    "raw_location": "Noida, Uttar Pradesh",
-    "apply_url": "https://jobs.lever.co/paytm/7097240e-c9be-430b-816e-259e96fee507",
-    "posted_at": "2026-09-24T10:53:45.609000+00:00",
-    "source": "Lever",
-    "id": "job-2ba043c48c4b7779",
     "role": "Other",
     "city": "Delhi NCR",
     "experience": "Fresher",
@@ -1974,20 +1876,6 @@
     "confidence": 0.92
   },
   {
-    "title": "Finance Controls & Governance",
-    "company": "Paytm",
-    "raw_location": "Mumbai, Maharashtra",
-    "apply_url": "https://jobs.lever.co/paytm/5a817d1c-0cae-4d72-bac2-2daf6c296a02",
-    "posted_at": "2026-07-27T12:27:52.443000+00:00",
-    "source": "Lever",
-    "id": "job-ce6132b9b17e2466",
-    "role": "Other",
-    "city": "Mumbai",
-    "experience": "Fresher",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
     "title": "Financial Analyst - AM - Lending",
     "company": "Paytm",
     "raw_location": "Noida, Uttar Pradesh",
@@ -2194,20 +2082,6 @@
     "role": "Marketing & Growth",
     "city": "Delhi NCR",
     "experience": "Senior",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
-    "title": "Growth Operations - Campaign - Paytm Money",
-    "company": "Paytm",
-    "raw_location": "Noida, Uttar Pradesh",
-    "apply_url": "https://jobs.lever.co/paytm/fa5befe1-43f5-417f-a1de-a989264e1871",
-    "posted_at": "2026-08-06T05:20:07.890000+00:00",
-    "source": "Lever",
-    "id": "job-7702b6f30abaa6cb",
-    "role": "Operations & HR",
-    "city": "Delhi NCR",
-    "experience": "Fresher",
     "job_type": "Full-Time Fresher",
     "confidence": 0.92
   },
@@ -3220,20 +3094,6 @@
     "confidence": 0.92
   },
   {
-    "title": "Project Manager",
-    "company": "Paytm",
-    "raw_location": "Noida, Uttar Pradesh",
-    "apply_url": "https://jobs.lever.co/paytm/9f3726a5-236d-4eff-aae8-f2a56ddb072e",
-    "posted_at": "2026-08-06T09:38:50.772000+00:00",
-    "source": "Lever",
-    "id": "job-193202c45b47a3bb",
-    "role": "Other",
-    "city": "Delhi NCR",
-    "experience": "Senior",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
     "title": "Regional Collections Manager - Senior Manager - Lending Collections",
     "company": "Paytm",
     "raw_location": "Ahmedabad, Gujarat",
@@ -3304,20 +3164,6 @@
     "confidence": 0.92
   },
   {
-    "title": "Relationship Manager - HNI Customers - Paytm Money Ltd",
-    "company": "Paytm",
-    "raw_location": "Mumbai, Maharashtra",
-    "apply_url": "https://jobs.lever.co/paytm/0c8e02de-6720-4e2c-9742-aa4f35ec8327",
-    "posted_at": "2026-07-24T11:23:58.281000+00:00",
-    "source": "Lever",
-    "id": "job-fbce61877f3d4f3e",
-    "role": "Other",
-    "city": "Mumbai",
-    "experience": "Senior",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
     "title": "Revenue Manager",
     "company": "Paytm",
     "raw_location": "Gurugram, Haryana",
@@ -3342,34 +3188,6 @@
     "role": "Sales & BD",
     "city": "Mumbai",
     "experience": "Senior",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
-    "title": "Sales/ BD - Team Lead - Paytm (Pi Commerce)",
-    "company": "Paytm",
-    "raw_location": "Greater Noida, Uttar Pradesh",
-    "apply_url": "https://jobs.lever.co/paytm/e98faea3-26b4-4585-b0bb-7031dff221a0",
-    "posted_at": "2026-08-07T04:50:34.047000+00:00",
-    "source": "Lever",
-    "id": "job-db9054b64773a429",
-    "role": "Sales & BD",
-    "city": "Delhi NCR",
-    "experience": "Senior",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
-    "title": "Sales/BD Executive - Paytm (Pi Commerce)",
-    "company": "Paytm",
-    "raw_location": "Noida, Uttar Pradesh",
-    "apply_url": "https://jobs.lever.co/paytm/0a418b0f-6d2f-486f-bbf3-155f09e1fce3",
-    "posted_at": "2026-08-07T04:46:41.972000+00:00",
-    "source": "Lever",
-    "id": "job-08001e7ff989e655",
-    "role": "Sales & BD",
-    "city": "Delhi NCR",
-    "experience": "Fresher",
     "job_type": "Full-Time Fresher",
     "confidence": 0.92
   },
@@ -3612,20 +3430,6 @@
     "confidence": 0.92
   },
   {
-    "title": "Taxation",
-    "company": "Paytm",
-    "raw_location": "Mumbai, Maharashtra",
-    "apply_url": "https://jobs.lever.co/paytm/3d3ee995-ba39-4d3a-95fd-ef391b7f3b58",
-    "posted_at": "2026-07-27T12:18:24.493000+00:00",
-    "source": "Lever",
-    "id": "job-2b3c7cfcabf89e29",
-    "role": "Other",
-    "city": "Mumbai",
-    "experience": "Fresher",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
     "title": "Team Leader",
     "company": "Paytm",
     "raw_location": "Hyderabad, Telangana",
@@ -3808,13 +3612,13 @@
     "confidence": 0.92
   },
   {
-    "title": "Zonal Collection Manager- Jaipur- lending Collections",
+    "title": "Zonal Collection Manager- DGM- Jaipur- lending Collections",
     "company": "Paytm",
     "raw_location": "Jaipur, Rajasthan",
     "apply_url": "https://jobs.lever.co/paytm/b1e79ea6-5f63-46a0-b341-df4105d8807c",
     "posted_at": "2026-10-21T20:39:43.971000+00:00",
     "source": "Lever",
-    "id": "job-8cafa8b1d4b3fa06",
+    "id": "job-5bf7b88ca17712f0",
     "role": "Other",
     "city": "Other",
     "experience": "Senior",
@@ -4000,20 +3804,6 @@
     "role": "Other",
     "city": "Bengaluru",
     "experience": "Senior",
-    "job_type": "Full-Time Fresher",
-    "confidence": 0.92
-  },
-  {
-    "title": "Graphic Designer",
-    "company": "Meesho",
-    "raw_location": "Bangalore, Karnataka",
-    "apply_url": "https://jobs.lever.co/meesho/6175b1de-5749-4a29-9016-5c387aee5e32",
-    "posted_at": "2026-11-13T14:28:55.525000+00:00",
-    "source": "Lever",
-    "id": "job-13f852d7a70d700c",
-    "role": "Design",
-    "city": "Bengaluru",
-    "experience": "Fresher",
     "job_type": "Full-Time Fresher",
     "confidence": 0.92
   },
@@ -4708,7 +4498,7 @@
     "company": "Ramp",
     "raw_location": "Remote (US)",
     "apply_url": "https://jobs.ashbyhq.com/ramp/6a3f42e6-00d6-4e9d-9caa-9663ffac6d53",
-    "posted_at": "2026-11-22T07:19:39.341698+00:00",
+    "posted_at": "2026-11-23T08:02:57.174835+00:00",
     "source": "Boolean Dork (jobs.ashbyhq.com/ramp)",
     "id": "job-f9061243ea53f364",
     "role": "Other",
@@ -4722,7 +4512,7 @@
     "company": "Ramp",
     "raw_location": "Remote (US)",
     "apply_url": "https://jobs.ashbyhq.com/ramp/a9cb5fd3-1acb-474e-ab7c-b811eeb5b0c2",
-    "posted_at": "2026-11-22T07:19:39.341701+00:00",
+    "posted_at": "2026-11-23T08:02:57.174839+00:00",
     "source": "Boolean Dork (jobs.ashbyhq.com/ramp)",
     "id": "job-40630b02ae9e1f92",
     "role": "Software Engineering",
@@ -4736,7 +4526,7 @@
     "company": "Ramp",
     "raw_location": "Remote (US)",
     "apply_url": "https://jobs.ashbyhq.com/ramp/939892e5-5273-4bfc-8c41-a6c51cabb228",
-    "posted_at": "2026-11-22T07:19:39.341703+00:00",
+    "posted_at": "2026-11-23T08:02:57.174842+00:00",
     "source": "Boolean Dork (jobs.ashbyhq.com/ramp)",
     "id": "job-5e63939afc66b8bf",
     "role": "Software Engineering",
@@ -4750,7 +4540,7 @@
     "company": "Meesho",
     "raw_location": "Bangalore, Karnataka",
     "apply_url": "https://jobs.lever.co/meesho/3d5bf582-493f-4298-b7de-e42a7d58a358",
-    "posted_at": "2026-11-22T07:19:39.341726+00:00",
+    "posted_at": "2026-11-23T08:02:57.174866+00:00",
     "source": "Boolean Dork (jobs.lever.co/meesho)",
     "id": "job-94a53df178a401ca",
     "role": "AI / ML",
