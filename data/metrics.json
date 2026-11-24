@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-11-23T08:02:57.290405+00:00",
-  "duration_seconds": 18.67,
+  "timestamp": "2026-11-24T10:19:58.726639+00:00",
+  "duration_seconds": 21.9,
   "pipeline_status": "success",
   "counts": {
-    "raw_fetched": 351,
+    "raw_fetched": 343,
     "duplicates_removed": 26,
-    "unique_active_jobs": 325
+    "unique_active_jobs": 317
   },
   "cost_and_tokens": {
     "tagging_mode": "gemini-2.5-flash (thinking budget: 0)",
-    "total_posts_live": 325,
-    "delta_cached_posts": 324,
-    "newly_tagged_posts": 1,
+    "total_posts_live": 317,
+    "delta_cached_posts": 304,
+    "newly_tagged_posts": 13,
     "input_tokens": 0,
     "output_tokens": 0,
     "total_tokens": 0,
@@ -29,42 +29,42 @@
   },
   "distributions": {
     "by_role": {
-      "Other": 186,
+      "Other": 178,
       "Product": 30,
-      "Sales & BD": 27,
+      "Sales & BD": 26,
       "Operations & HR": 24,
-      "Marketing & Growth": 15,
+      "Software Engineering": 15,
       "AI / ML": 13,
-      "Software Engineering": 13,
+      "Marketing & Growth": 13,
       "Data & Analytics": 9,
-      "Design": 6,
+      "Design": 7,
       "DevOps / Cloud": 2
     },
     "by_city": {
-      "Bengaluru": 125,
+      "Bengaluru": 123,
       "Delhi NCR": 93,
-      "Other": 54,
-      "Mumbai": 30,
-      "Remote (India)": 7,
-      "Hyderabad": 6,
+      "Other": 50,
+      "Mumbai": 32,
+      "Hyderabad": 5,
       "Ahmedabad": 5,
+      "Remote (India)": 4,
       "Chennai": 3,
       "Pune": 2
     },
     "by_experience": {
-      "Senior": 206,
-      "Fresher": 94,
+      "Senior": 195,
+      "Fresher": 97,
       "Mid-Level": 18,
       "Internship": 7
     },
     "by_job_type": {
-      "Full-Time Fresher": 318,
+      "Full-Time Fresher": 310,
       "Internship": 7
     },
     "by_source": {
-      "Lever": 226,
-      "Greenhouse": 83,
-      "Ashby": 12,
+      "Lever": 228,
+      "Greenhouse": 76,
+      "Ashby": 9,
       "Boolean Dork (jobs.ashbyhq.com/ramp)": 3,
       "Boolean Dork (jobs.lever.co/meesho)": 1
     }
