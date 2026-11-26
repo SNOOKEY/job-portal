@@ -1,17 +1,17 @@
 {
-  "timestamp": "2026-11-25T09:00:57.342439+00:00",
-  "duration_seconds": 43.47,
+  "timestamp": "2026-11-26T08:47:56.291437+00:00",
+  "duration_seconds": 19.38,
   "pipeline_status": "success",
   "counts": {
-    "raw_fetched": 341,
-    "duplicates_removed": 19,
-    "unique_active_jobs": 322
+    "raw_fetched": 349,
+    "duplicates_removed": 28,
+    "unique_active_jobs": 321
   },
   "cost_and_tokens": {
     "tagging_mode": "gemini-2.5-flash (thinking budget: 0)",
-    "total_posts_live": 322,
-    "delta_cached_posts": 313,
-    "newly_tagged_posts": 9,
+    "total_posts_live": 321,
+    "delta_cached_posts": 311,
+    "newly_tagged_posts": 10,
     "input_tokens": 0,
     "output_tokens": 0,
     "total_tokens": 0,
@@ -29,22 +29,21 @@
   },
   "distributions": {
     "by_role": {
-      "Other": 180,
-      "Product": 29,
+      "Other": 179,
+      "Operations & HR": 27,
       "Sales & BD": 26,
-      "Operations & HR": 25,
-      "Marketing & Growth": 15,
-      "Software Engineering": 15,
-      "AI / ML": 13,
+      "Product": 26,
+      "Software Engineering": 17,
+      "Marketing & Growth": 14,
+      "AI / ML": 14,
       "Data & Analytics": 9,
       "Design": 7,
-      "DevOps / Cloud": 2,
-      "QA / Testing": 1
+      "DevOps / Cloud": 2
     },
     "by_city": {
-      "Bengaluru": 126,
-      "Delhi NCR": 94,
-      "Other": 50,
+      "Bengaluru": 123,
+      "Delhi NCR": 95,
+      "Other": 51,
       "Mumbai": 32,
       "Remote (India)": 5,
       "Hyderabad": 5,
@@ -53,19 +52,19 @@
       "Pune": 2
     },
     "by_experience": {
-      "Senior": 196,
+      "Senior": 193,
       "Fresher": 99,
-      "Mid-Level": 19,
+      "Mid-Level": 21,
       "Internship": 8
     },
     "by_job_type": {
-      "Full-Time Fresher": 314,
+      "Full-Time Fresher": 313,
       "Internship": 8
     },
     "by_source": {
-      "Lever": 229,
-      "Greenhouse": 79,
-      "Ashby": 10,
+      "Lever": 233,
+      "Greenhouse": 75,
+      "Ashby": 9,
       "Boolean Dork (jobs.ashbyhq.com/ramp)": 3,
       "Boolean Dork (jobs.lever.co/meesho)": 1
     }
